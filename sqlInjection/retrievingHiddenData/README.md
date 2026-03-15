@@ -1,4 +1,4 @@
-# 🛡️ Lab: SQL injection in WHERE clause allowing retrieval of hidden data
+# 🛡️ Lab: Lab: SQL injection vulnerability in WHERE clause allowing retrieval of hidden data
 
 > **Category:** `SQL Injection`  
 > **Difficulty:** `Apprentice`  
