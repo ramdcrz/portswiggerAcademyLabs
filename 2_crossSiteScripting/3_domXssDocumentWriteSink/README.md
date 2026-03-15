@@ -35,7 +35,7 @@ I crafted a payload to break out of the `<img>` tag context. By entering `"><svg
 
 <div align="center">
   <img src="./screenshots/payload.png" alt="XSS Payload" width="85%">
-  <p><i><b>Figure 3:</b> Entering the breakout payload into the search bar.</i></p>
+  <p><i><b>Figure 2:</b> Entering the breakout payload into the search bar.</i></p>
 </div>
 
 #### 3. Execution & Verification
@@ -43,7 +43,7 @@ The browser processed the injected HTML. Since the SVG element's `onload` event 
 
 <div align="center">
   <img src="./screenshots/verification.png" alt="Verification" width="85%">
-  <p><i><b>Figure 4:</b> The browser executing the injected SVG script.</i></p>
+  <p><i><b>Figure 3:</b> The browser executing the injected SVG script.</i></p>
 </div>
 
 #### 4. Final Confirmation
@@ -51,7 +51,7 @@ The execution of the script satisfied the lab requirements, and the PortSwigger 
 
 <div align="center">
   <img src="./screenshots/confirmation.png" alt="Lab Solved" width="85%">
-  <p><i><b>Figure 5:</b> Final confirmation of the DOM XSS solution.</i></p>
+  <p><i><b>Figure 4:</b> Final confirmation of the DOM XSS solution.</i></p>
 </div>
 
 ---
