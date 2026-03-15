@@ -1,4 +1,4 @@
-# 🛡️ Lab: DOM XSS in jQuery selector sink using a hashchange event
+# 🛡️ Lab: DOM XSS in jQuery selector sink using a hashchange event 
 
 > **Category:** `Cross-site Scripting (XSS)`  
 > **Difficulty:** `Apprentice`  
