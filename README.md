@@ -18,54 +18,128 @@ The goal is to master web application security fundamentals, focusing on vulnera
 
 ---
 
+## 📈 Mid-Term Progress Report
+### Executive Summary
+As of March 2026, I have successfully identified, exploited, and documented **11 vulnerabilities** across the SQL Injection and Cross-site Scripting categories. This journey has focused on moving beyond automated tools to understand the manual logic required to bypass modern security filters.
+
+### 🧠 Core Skills Acquired
+* **Manual Exploitation:** Utilizing Burp Suite (Proxy & Repeater) to manipulate raw HTTP requests and observe server-side behavior.
+* **Contextual Analysis:** Determining if a vulnerability exists in HTML, Attribute, or JavaScript contexts.
+* **Filter Evasion:** Mastering techniques like attribute escaping, pseudo-protocol injection (`javascript:`), and JavaScript string breakout to bypass HTML encoding.
+
+---
+
 ## 📊 Progress Tracker (Apprentice Level)
 
-<details>
-<summary><b>SQL Injection (SQLi)</b></summary>
+<details open>
+<summary><b>1. SQL Injection (SQLi)</b></summary>
 
-- [ ] SQL injection vulnerability in WHERE clause allowing retrieval of hidden data
-- [ ] SQL injection vulnerability allowing login bypass
-- [ ] SQL injection UNION attack, determining the number of columns returned by the query
-- [ ] SQL injection UNION attack, finding a column containing text
+- [x] 1_retrievingHiddenData
+- [x] 2_loginBypass
+</details>
+
+<details open>
+<summary><b>2. Cross-Site Scripting (XSS)</b></summary>
+
+- [x] 1_reflectedXssHtmlContext
+- [x] 2_storedXssHtmlContext
+- [x] 3_domXssDocumentWriteSink
+- [x] 4_domXssInnerHtmlSink
+- [x] 5_domXssJqueryAnchorHrefSink
+- [x] 6_domXssJquerySelectorSinkHashChange
+- [x] 7_reflectedXssAttributeEncoded
+- [x] 8_storedXssAnchorHrefJavascript
+- [x] 9_reflectedXssJavascriptStringBreakout
 </details>
 
 <details>
-<summary><b>Authentication</b></summary>
+<summary><b>3. Cross-Site Request Forgery (CSRF)</b></summary>
+
+- [ ] CSRF vulnerability with no defenses
+</details>
+
+<details>
+<summary><b>4. Clickjacking</b></summary>
+
+- [ ] Basic clickjacking with CSRF token protection
+- [ ] Clickjacking with form input data prefilled from a URL parameter
+- [ ] Clickjacking with a frame buster script
+</details>
+
+<details>
+<summary><b>5. Cross-origin resource sharing (CORS)</b></summary>
+
+- [ ] CORS vulnerability with basic origin reflection
+- [ ] CORS vulnerability with trusted null origin
+</details>
+
+<details>
+<summary><b>6. XML external entity (XXE) injection</b></summary>
+
+- [ ] Exploiting XXE using external entities to retrieve files
+- [ ] Exploiting XXE to perform SSRF attacks
+</details>
+
+<details>
+<summary><b>7. Server-side request forgery (SSRF)</b></summary>
+
+- [ ] Basic SSRF against the local server
+- [ ] Basic SSRF against another back-end system
+</details>
+
+<details>
+<summary><b>8. OS command injection</b></summary>
+
+- [ ] OS command injection, simple case
+</details>
+
+<details>
+<summary><b>9. Path traversal</b></summary>
+
+- [ ] File path traversal, simple case
+</details>
+
+<details>
+<summary><b>10. Access control vulnerabilities</b></summary>
+
+- [ ] Unprotected admin functionality
+- [ ] Unprotected admin functionality with unpredictable URL
+- [ ] User role controlled by request parameter
+- [ ] User role can be modified in user profile
+- [ ] User ID controlled by request parameter 
+- [ ] User ID controlled by request parameter, with unpredictable user IDs
+- [ ] User ID controlled by request parameter with data leakage in redirect 
+- [ ] User ID controlled by request parameter with password disclosure
+- [ ] Insecure direct object references
+</details>
+
+<details>
+<summary><b>11. Authentication</b></summary>
 
 - [ ] Username enumeration via different responses
-- [ ] 2FA broken logic
+- [ ] 2FA simple bypass
 - [ ] Password reset broken logic
 </details>
 
 <details>
-<summary><b>Cross-Site Scripting (XSS)</b></summary>
+<summary><b>12. WebSockets</b></summary>
 
-- [ ] Reflected XSS into HTML context with nothing encoded
-- [ ] Stored XSS into HTML context with nothing encoded
-- [ ] DOM XSS in `document.write` sink using source `location.search`
-- [ ] DOM XSS in `innerHTML` sink using source `location.search`
-- [ ] DOM XSS in jQuery anchor `href` attribute sink using source `location.search`
-- [ ] DOM XSS in jQuery selector sink using source `location.hash`
-- [ ] Reflected XSS into attribute with angle brackets HTML-encoded
+- [ ] Manipulating WebSocket messages to exploit vulnerabilities
 </details>
 
 <details>
-<summary><b>Cross-Site Request Forgery (CSRF)</b></summary>
+<summary><b>13. Insecure deserialization</b></summary>
 
-- [ ] CSRF vulnerability with no defenses
-- [ ] CSRF where token validation depends on request method
+- [ ] Modifying serialized objects
 </details>
 
 <details>
-<summary><b>Clickjacking</b></summary>
+<summary><b>14. Information disclosure</b></summary>
 
-- [ ] Basic clickjacking with CSRF token protection
-</details>
-
-<details>
-<summary><b>DOM-based vulnerabilities</b></summary>
-
-- [ ] DOM-based open redirection
+- [ ] Information disclosure in error messages
+- [ ] Information disclosure on debug page
+- [ ] Source code disclosure via backup files
+- [ ] Authentication bypass via information disclosure
 </details>
 
 ---
