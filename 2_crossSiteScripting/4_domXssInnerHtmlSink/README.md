@@ -33,7 +33,7 @@ I used an event-based payload. I entered `<img src=1 onerror=alert(1)>` into the
 
 <div align="center">
   <img src="./screenshots/payload.png" alt="XSS Payload" width="85%">
-  <p><i><b>Figure 3:</b> Entering the img-based XSS payload.</i></p>
+  <p><i><b>Figure 2:</b> Entering the img-based XSS payload.</i></p>
 </div>
 
 #### 3. Execution & Verification
@@ -41,7 +41,7 @@ The browser attempted to load the image with the source "1". When it failed, the
 
 <div align="center">
   <img src="./screenshots/verification.png" alt="Verification" width="85%">
-  <p><i><b>Figure 4:</b> The browser executing the JavaScript alert via the onerror event.</i></p>
+  <p><i><b>Figure 3:</b> The browser executing the JavaScript alert via the onerror event.</i></p>
 </div>
 
 #### 4. Final Confirmation
@@ -49,7 +49,7 @@ The script execution successfully triggered the lab completion state, as evidenc
 
 <div align="center">
   <img src="./screenshots/confirmation.png" alt="Lab Solved" width="85%">
-  <p><i><b>Figure 5:</b> Final confirmation of the solved lab.</i></p>
+  <p><i><b>Figure 4:</b> Final confirmation of the solved lab.</i></p>
 </div>
 
 ---
