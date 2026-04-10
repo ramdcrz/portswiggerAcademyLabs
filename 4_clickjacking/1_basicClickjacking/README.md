@@ -1,60 +1,79 @@
-# 🛡️ Lab: CORS vulnerability with trusted null origin
+# WEB APPLICATION PENETRATION TEST REPORT: BASIC CLICKJACKING
 
-> **Category:** `Cross-Origin Resource Sharing (CORS)`  
-> **Difficulty:** `Apprentice`  
-> **Status:** `Completed` ✅
+## 1. Document Control
 
----
-
-### 🎯 Objective
-The objective of this lab is to exploit a CORS misconfiguration where the server trusts the `null` origin. By using a sandboxed iframe to generate a `null` origin request, I can steal the administrator's API key.
-
-### 🛠️ Exploit Strategy
-* **Vulnerability Point:** `/accountDetails` endpoint.
-* **Payload Type:** CORS Misconfiguration (Trusted Null Origin).
-* **Technical Logic:** The server's CORS policy includes `null` in its whitelist of allowed origins. I utilized an HTML5 `<iframe>` with the `sandbox` attribute. Because `allow-same-origin` is omitted, the browser is forced to send `Origin: null` in the request header, bypassing the policy and allowing data exfiltration via an authenticated XHR request.
+| Detail | Value |
+| :--- | :--- |
+| **Report Date** | 20 March 2026 |
+| **Report Version** | 1.0 |
+| **Classification** | CONFIDENTIAL |
+| **Prepared By** | Ramil V. Deocariza Jr. |
 
 ---
 
-### 📑 Technical Walkthrough
+## 2. Executive Summary
+This report details the discovery of a Clickjacking (UI Redressing) vulnerability. The application fails to implement frame-busting defenses, allowing an attacker to overlay a malicious interface on top of the target application, tricking authenticated users into executing unintended, state-changing actions.
 
-#### 1. Identification & Repeater Analysis
-I analyzed the `/accountDetails` request and tested it in Burp Repeater by injecting an `Origin: null` header. The server reflected this origin and confirmed credential support, identifying a clear vulnerability.
+### 2.1 Overall Risk Rating
+**Rating: HIGH**
 
+### 2.2 Risk Summary
+| Critical | High | Medium | Low | Info | Total Findings |
+| :---: | :---: | :---: | :---: | :---: | :---: |
+| 0 | 1 | 0 | 0 | 0 | 1 |
+
+---
+
+## 3. Detailed Findings
+
+### VULN-001 — Account Deletion via UI Redressing
+
+| Attribute | Detail |
+| :--- | :--- |
+| **Severity** | High |
+| **Finding ID** | VULN-001 |
+| **Affected Endpoint** | `/my-account` |
+| **CWE** | CWE-1021: Improper Restriction of Rendered UI Layers or Frames |
+| **CVSSv3 Score** | 7.1 (High) |
+| **OWASP Category**| A01:2021 – Broken Access Control |
+| **Status** | Open |
+
+#### 3.1 Description
+The `/my-account` endpoint contains a sensitive "Delete account" button. Although the form is protected by anti-CSRF tokens, the application lacks the `X-Frame-Options` or `Content-Security-Policy: frame-ancestors` HTTP headers. An attacker can embed this page within an invisible `<iframe>` on a malicious website, overlaying a deceptive "Click Me" button exactly over the hidden "Delete account" button. 
+
+#### 3.2 Proof of Concept (PoC)
+
+**1. Identification**
+Analyzed the HTTP response headers for the `/my-account` endpoint and confirmed the absence of frame-restricting headers.
 <div align="center">
-  <img src="./screenshots/proxy.png" alt="Null Origin Reflection" width="85%">
-  <p><i><b>Figure 1:</b> Proving the server trusts and reflects the 'null' origin.</i></p>
+  <img src="./screenshots/identification.png" alt="Missing Headers" width="85%">
+  <p><i><b>Figure 1:</b> Identifying the absence of X-Frame-Options in the server response.</i></p>
 </div>
 
-#### 2. Crafting the Sandboxed Exploit
-I configured the exploit server to host a sandboxed iframe. This specific configuration is necessary to trigger the browser's `null` origin behavior while still allowing the scripts to run and exfiltrate the data.
-
+**2. Crafting the Malicious Overlay**
+Utilized the Exploit Server to craft an HTML payload. Configured an `<iframe>` to load the target account page and set its `opacity` to `0.0001` (invisible). Positioned a harmless-looking decoy button beneath the iframe using CSS absolute positioning.
 <div align="center">
-  <img src="./screenshots/payload.png" alt="Iframe Sandbox Exploit" width="85%">
-  <p><i><b>Figure 2:</b> The sandboxed iframe payload used to spoof the null origin.</i></p>
+  <img src="./screenshots/payload.png" alt="Payload Construction" width="85%">
+  <p><i><b>Figure 2:</b> CSS and HTML configuration of the Clickjacking payload.</i></p>
 </div>
 
-#### 3. Execution & Log Analysis
-Upon delivery to the victim, I monitored the Access Log. The administrator's session triggered the exploit, and their API key was successfully leaked to my server logs.
-
+**3. Execution & Verification**
+Delivered the exploit to the victim. When the victim clicked the visible decoy button, their browser inherently clicked the invisible "Delete account" button layered on top of it.
 <div align="center">
-  <img src="./screenshots/verification.png" alt="Log Analysis" width="85%">
-  <p><i><b>Figure 3:</b> Retrieving the administrator's stolen API key from the logs.</i></p>
+  <img src="./screenshots/verification.png" alt="Execution" width="85%">
+  <p><i><b>Figure 3:</b> The invisible iframe intercepting the user's click.</i></p>
 </div>
-
-#### 4. Final Confirmation
-I submitted the stolen key to satisfy the lab requirements.
-
 <div align="center">
   <img src="./screenshots/confirmation.png" alt="Lab Solved" width="85%">
-  <p><i><b>Figure 4:</b> Lab solved confirmation.</i></p>
+  <p><i><b>Figure 4:</b> Final confirmation of successful account deletion via Clickjacking.</i></p>
 </div>
 
----
+#### 3.3 Business Impact
+Bypasses CSRF protections by weaponizing the user's own authenticated clicks, leading to unauthorized account deletion, financial transfers, or privilege escalation.
 
-### 🧠 Key Takeaway
-The `null` origin is not a security boundary. It can be easily spoofed using sandboxed iframes or certain redirects. Whitelisting `null` is just as dangerous as whitelisting `*` (wildcard) if credentials are supported.
+#### 3.4 Remediation
+Implement the `Content-Security-Policy: frame-ancestors 'self'` header to prevent the application from being framed by external, untrusted domains. For legacy browser support, simultaneously implement the `X-Frame-Options: SAMEORIGIN` header.
 
-**Remediation:** Remove `null` from the CORS whitelist. If you need to support cross-origin requests, use a strictly defined whitelist of trusted, full domain names.
-
----
+#### 3.5 References
+* **CWE-1021:** https://cwe.mitre.org/data/definitions/1021.html
+* **OWASP Clickjacking Defense:** https://cheatsheetseries.owasp.org/cheatsheets/Clickjacking_Defense_Cheat_Sheet.html
