@@ -1,67 +1,83 @@
-# 🛡️ Lab: User role controlled by request parameter
+# WEB APPLICATION PENETRATION TEST REPORT: PRIVILEGE ESCALATION (COOKIE FORGERY)
 
-> **Category:** `Access Control`  
-> **Difficulty:** `Apprentice`  
-> **Status:** `Completed` ✅
+## 1. Document Control
 
----
-
-### 🎯 Objective
-The objective of this lab is to exploit a broken access control vulnerability where the user's privilege level is determined by a forgeable cookie, allowing for unauthorized access to administrative functions.
-
-### 🛠️ Exploit Strategy
-* **Vulnerability Point:** `Admin` cookie value.
-* **Payload Type:** Cookie Manipulation / Privilege Escalation.
-* **Technical Logic:** The application relies on a client-side cookie (`Admin=false`) to determine if a user has administrative rights. Because the server does not verify this role against a backend database or use a cryptographically signed token (like a JWT), an attacker can simply modify the cookie value to `true` to gain full administrative access.
+| Detail | Value |
+| :--- | :--- |
+| **Report Date** | 18 March 2026 |
+| **Report Version** | 1.0 |
+| **Classification** | CONFIDENTIAL |
+| **Prepared By** | Ramil V. Deocariza Jr. |
 
 ---
 
-### 📑 Technical Walkthrough
+## 2. Executive Summary
+This report documents a High-severity authorization bypass. The application securely authenticates users but insecurely delegates role-based authorization to a client-modifiable cookie, allowing trivial privilege escalation.
 
-#### 1. Identification of the Role Marker
-After logging in with standard credentials, I intercepted the server's response and identified a clear Boolean flag in the cookies used to define the user's role.
+### 2.1 Overall Risk Rating
+**Rating: HIGH**
 
+### 2.2 Risk Summary
+| Critical | High | Medium | Low | Info | Total Findings |
+| :---: | :---: | :---: | :---: | :---: | :---: |
+| 0 | 1 | 0 | 0 | 0 | 1 |
+
+---
+
+## 3. Detailed Findings
+
+### VULN-001 — Privilege Escalation via Insecure Cookie Manipulation
+
+| Attribute | Detail |
+| :--- | :--- |
+| **Severity** | High |
+| **Finding ID** | VULN-001 |
+| **Affected Component** | `Admin` Session Cookie |
+| **CWE** | CWE-565: Reliance on Cookies without Validation and Integrity Checking |
+| **CVSSv3 Score** | 8.8 (High) |
+| **OWASP Category**| A01:2021 – Broken Access Control |
+| **Status** | Open |
+
+#### 3.1 Description
+The application relies on an unsigned, client-side cookie (`Admin=false`) to determine a user's administrative rights. By intercepting the session and modifying the cookie value to `true`, an attacker can forge administrative privileges and access restricted backend endpoints.
+
+#### 3.2 Proof of Concept (PoC)
+
+**1. Identification of the Role Marker**
+Identified a clear Boolean flag in the login response cookies defining the user role.
 <div align="center">
   <img src="./screenshots/identification.png" alt="Cookie Identification" width="85%">
   <p><i><b>Figure 1:</b> The server setting the 'Admin=false' cookie upon login.</i></p>
 </div>
 
-#### 2. Forging Administrative Privileges
-I used Burp Suite to intercept the login response and manually changed the `Admin` cookie value from `false` to `true` before it reached the browser.
-
+**2. Forging Administrative Privileges**
+Intercepted the traffic and manually changed the `Admin` cookie value to `true`.
 <div align="center">
   <img src="./screenshots/proxy.png" alt="Cookie Manipulation" width="85%">
-  <p><i><b>Figure 2:</b> Modifying the cookie to escalate privileges to Administrator.</i></p>
+  <p><i><b>Figure 2:</b> Modifying the cookie to escalate privileges.</i></p>
 </div>
 
-#### 3. Bypassing Access Controls
-With the forged cookie stored in the browser, I successfully accessed the restricted `/admin` endpoint, which previously returned a 401 or 403 error.
-
+**3. Execution & Verification**
+Accessed the restricted `/admin` endpoint and executed an unauthorized user deletion.
 <div align="center">
   <img src="./screenshots/traversal.png" alt="Admin Panel Access" width="85%">
   <p><i><b>Figure 3:</b> Accessing the administrative interface with the forged identity.</i></p>
 </div>
-
-#### 4. Unauthorized Action Execution
-I utilized the administrative delete function to remove the user `carlos`. The server processed the request as if it originated from a legitimate administrator.
-
 <div align="center">
   <img src="./screenshots/verification.png" alt="User Deleted" width="85%">
   <p><i><b>Figure 4:</b> Deleting the target user via the escalated session.</i></p>
 </div>
-
-#### 5. Final Confirmation
-The lab was marked as solved, confirming that the unauthorized administrative action was successfully executed.
-
 <div align="center">
   <img src="./screenshots/confirmation.png" alt="Lab Solved" width="85%">
   <p><i><b>Figure 5:</b> Final confirmation of lab completion.</i></p>
 </div>
 
----
+#### 3.3 Business Impact
+Client-side trust models allow standard users to effortlessly elevate their privileges to administrators, resulting in full application compromise and unauthorized data destruction.
 
-### 🧠 Key Takeaway
-Never trust user-supplied data for authorization decisions. If a user can see a value, they can change it.
+#### 3.4 Remediation
+Never trust user-supplied data for authorization decisions. Store user roles securely in the backend database linked to a randomized session ID, or utilize cryptographically signed tokens (like HMAC or JWT) to ensure integrity.
 
-**Remediation:** Store user roles in a secure, server-side session or use cryptographically signed tokens (like HMAC or JWT) that cannot be tampered with by the client.
----
+#### 3.5 References
+* **CWE-565:** https://cwe.mitre.org/data/definitions/565.html
+* **OWASP Session Management:** https://cheatsheetseries.owasp.org/cheatsheets/Session_Management_Cheat_Sheet.html

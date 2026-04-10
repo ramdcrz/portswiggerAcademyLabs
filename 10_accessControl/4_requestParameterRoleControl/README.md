@@ -1,67 +1,83 @@
-# 🛡️ Lab: User role controlled by request parameter
+# WEB APPLICATION PENETRATION TEST REPORT: MASS ASSIGNMENT
 
-> **Category:** `Access Control`  
-> **Difficulty:** `Apprentice`  
-> **Status:** `Completed` ✅
+## 1. Document Control
 
----
-
-### 🎯 Objective
-The objective of this lab is to exploit a Mass Assignment vulnerability in a JSON-based profile update feature to escalate privileges and delete the user `carlos`.
-
-### 🛠️ Exploit Strategy
-* **Vulnerability Point:** JSON body in the email update request.
-* **Payload Type:** Mass Assignment / JSON Injection.
-* **Technical Logic:** The application uses a JSON object to transfer user data between the client and server. By observing the server's response, I identified a hidden `roleid` parameter. Since the server does not filter which fields it allows the client to update, I was able to inject `"roleid": 2` into my request, effectively promoting my own account to Administrator status.
+| Detail | Value |
+| :--- | :--- |
+| **Report Date** | 18 March 2026 |
+| **Report Version** | 1.0 |
+| **Classification** | CONFIDENTIAL |
+| **Prepared By** | Ramil V. Deocariza Jr. |
 
 ---
 
-### 📑 Technical Walkthrough
+## 2. Executive Summary
+This report identifies a Mass Assignment vulnerability resulting in Privilege Escalation. The application fails to whitelist updatable JSON attributes, allowing users to inject internal role identifiers and promote their own accounts.
 
-#### 1. Discovering Hidden Parameters
-After performing a standard email update, I analyzed the server's response. I discovered that the application returns the full user object, disclosing the internal `roleid` used for access control.
+### 2.1 Overall Risk Rating
+**Rating: HIGH**
 
+### 2.2 Risk Summary
+| Critical | High | Medium | Low | Info | Total Findings |
+| :---: | :---: | :---: | :---: | :---: | :---: |
+| 0 | 1 | 0 | 0 | 0 | 1 |
+
+---
+
+## 3. Detailed Findings
+
+### VULN-001 — Privilege Escalation via Mass Assignment (JSON Injection)
+
+| Attribute | Detail |
+| :--- | :--- |
+| **Severity** | High |
+| **Finding ID** | VULN-001 |
+| **Affected Endpoint** | Profile update JSON payload |
+| **CWE** | CWE-915: Improperly Controlled Modification of Dynamically-Determined Object Attributes |
+| **CVSSv3 Score** | 8.8 (High) |
+| **OWASP Category**| A01:2021 – Broken Access Control |
+| **Status** | Open |
+
+#### 3.1 Description
+The application utilizes a JSON object to transfer user data between the client and server. The server implicitly binds incoming JSON fields to the backend database record without an allow-list. By injecting the hidden `"roleid": 2` parameter into a standard email update request, an attacker can overwrite their role assignment.
+
+#### 3.2 Proof of Concept (PoC)
+
+**1. Discovering Hidden Parameters**
+Analyzed the server's profile response, discovering the internal `roleid` parameter disclosure.
 <div align="center">
   <img src="./screenshots/identification.png" alt="JSON Disclosure" width="85%">
   <p><i><b>Figure 1:</b> Identifying the 'roleid' parameter in the JSON response.</i></p>
 </div>
 
-#### 2. Executing Mass Assignment
-I moved the update request to **Burp Repeater** and appended the administrative `roleid` to the JSON payload. This targets the backend logic that maps incoming JSON directly to the user's database record.
-
+**2. Executing Mass Assignment**
+Appended the administrative `roleid` to the JSON payload in Burp Repeater.
 <div align="center">
   <img src="./screenshots/proxy.png" alt="JSON Injection" width="85%">
   <p><i><b>Figure 2:</b> Injecting the 'roleid': 2 parameter into the profile update request.</i></p>
 </div>
 
-#### 3. Privilege Escalation Verification
-The server's response confirmed that the `roleid` was successfully updated to `2`. This confirmed that I had bypassed the application's intended authorization logic.
-
+**3. Execution & Verification**
+The server successfully processed the role update, granting access to the `/admin` panel to delete the target user.
 <div align="center">
   <img src="./screenshots/traversal.png" alt="Role Confirmed" width="85%">
   <p><i><b>Figure 3:</b> Server response confirming the unauthorized role change.</i></p>
 </div>
-
-#### 4. Administrative Action
-With administrative rights active, I accessed the restricted `/admin` panel and successfully executed the command to delete `carlos`.
-
 <div align="center">
   <img src="./screenshots/verification.png" alt="Admin Action" width="85%">
   <p><i><b>Figure 4:</b> Using the escalated privileges to remove the target user.</i></p>
 </div>
-
-#### 5. Final Confirmation
-The lab was marked as solved upon the successful deletion of the user account.
-
 <div align="center">
   <img src="./screenshots/confirmation.png" alt="Lab Solved" width="85%">
   <p><i><b>Figure 5:</b> Final confirmation of lab completion.</i></p>
 </div>
 
----
+#### 3.3 Business Impact
+Mass assignment bypasses intended business logic, allowing attackers to manipulate unexposed model properties, leading to vertical privilege escalation and unauthorized access.
 
-### 🧠 Key Takeaway
-Mass Assignment occurs when an application takes user input and uses it to update an object without a "whitelist" of allowed fields. You should never allow clients to modify internal-only fields like roles, permissions, or balances.
+#### 3.4 Remediation
+Use Data Transfer Objects (DTOs) to strictly define which fields are permitted to be updated by a client. Implement an explicit allow-list on the backend controller to ignore unauthorized or sensitive parameters in incoming requests.
 
-**Remediation:** Use Data Transfer Objects (DTOs) to strictly define which fields can be updated by a user, or implement a strict whitelist on the backend to ignore sensitive parameters in incoming requests.
----
+#### 3.5 References
+* **CWE-915:** https://cwe.mitre.org/data/definitions/915.html
+* **OWASP API Security Top 10:** API6:2019 Mass Assignment

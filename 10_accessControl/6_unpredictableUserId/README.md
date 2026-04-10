@@ -1,67 +1,83 @@
-# 🛡️ Lab: User ID controlled by request parameter, with unpredictable user IDs
+# WEB APPLICATION PENETRATION TEST REPORT: IDOR WITH DATA LEAKAGE
 
-> **Category:** `Access Control`  
-> **Difficulty:** `Apprentice`  
-> **Status:** `Completed` ✅
+## 1. Document Control
 
----
-
-### 🎯 Objective
-The objective of this lab is to exploit a horizontal privilege escalation vulnerability by discovering a user's unpredictable GUID through public information and using it to access their private account data.
-
-### 🛠️ Exploit Strategy
-* **Vulnerability Point:** `id` query parameter in the `/my-account` page.
-* **Payload Type:** IDOR with GUID disclosure.
-* **Technical Logic:** While the application uses non-sequential GUIDs to identify users (making them "unpredictable"), it leaks these identifiers on public pages (blog posts). Since the backend does not check if the requesting user's session matches the ID in the URL, the "randomness" of the ID provides no actual security.
+| Detail | Value |
+| :--- | :--- |
+| **Report Date** | 18 March 2026 |
+| **Report Version** | 1.0 |
+| **Classification** | CONFIDENTIAL |
+| **Prepared By** | Ramil V. Deocariza Jr. |
 
 ---
 
-### 📑 Technical Walkthrough
+## 2. Executive Summary
+This report demonstrates a failure in "Security through Obscurity." The application relies on unpredictable GUIDs for access control but leaks them publicly, resulting in an exploitable Insecure Direct Object Reference (IDOR) vulnerability.
 
-#### 1. Information Disclosure Discovery
-I navigated to a blog post written by the target user. By clicking on the author's profile, I discovered that the application leaks the user's "unpredictable" GUID in the public URL.
+### 2.1 Overall Risk Rating
+**Rating: HIGH**
 
+### 2.2 Risk Summary
+| Critical | High | Medium | Low | Info | Total Findings |
+| :---: | :---: | :---: | :---: | :---: | :---: |
+| 0 | 1 | 0 | 0 | 0 | 1 |
+
+---
+
+## 3. Detailed Findings
+
+### VULN-001 — IDOR Exploitation via GUID Disclosure
+
+| Attribute | Detail |
+| :--- | :--- |
+| **Severity** | High |
+| **Finding ID** | VULN-001 |
+| **Affected URL** | `/my-account?id=[GUID]` |
+| **CWE** | CWE-639 / CWE-200 |
+| **CVSSv3 Score** | 7.5 (High) |
+| **OWASP Category**| A01:2021 – Broken Access Control |
+| **Status** | Open |
+
+#### 3.1 Description
+The application attempts to prevent IDOR by using long, non-sequential GUIDs instead of standard usernames. However, it leaks these internal identifiers on public blog author profiles. Because the backend lacks true session-based authorization checks, obtaining a user's GUID allows for direct access to their private account data.
+
+#### 3.2 Proof of Concept (PoC)
+
+**1. Information Disclosure Discovery**
+Discovered the application leaks the "unpredictable" GUID in public profile URLs.
 <div align="center">
   <img src="./screenshots/identification.png" alt="GUID Discovery" width="85%">
   <p><i><b>Figure 1:</b> Discovering Carlos's internal GUID via a public-facing profile page.</i></p>
 </div>
 
-#### 2. Establishing a Session Baseline
-I logged in with standard credentials to observe how the application handles my own account. My account was also identified by a GUID in the URL.
-
+**2. Executing Horizontal Escalation**
+Replaced the authenticated session's GUID with the target's leaked GUID in the `/my-account` URL parameter.
 <div align="center">
   <img src="./screenshots/proxy.png" alt="Standard Account Access" width="85%">
   <p><i><b>Figure 2:</b> Observing the standard session behavior and GUID format.</i></p>
 </div>
 
-#### 3. Executing Horizontal Escalation
-By replacing my own GUID with the one discovered from Carlos's profile, I successfully bypassed the intended account boundaries.
-
+**3. Data Exfiltration & Verification**
+Successfully bypassed intended boundaries to retrieve the target's private API key.
 <div align="center">
   <img src="./screenshots/traversal.png" alt="Unauthorized Access" width="85%">
-  <p><i><b>Figure 4:</b> Gaining unauthorized access to Carlos's private API key.</i></p>
+  <p><i><b>Figure 3:</b> Gaining unauthorized access to Carlos's private API key.</i></p>
 </div>
-
-#### 4. Data Exfiltration & Verification
-I exfiltrated the sensitive API key from the target account to satisfy the lab's requirements.
-
 <div align="center">
   <img src="./screenshots/verification.png" alt="Submission" width="85%">
   <p><i><b>Figure 4:</b> Preparing the exfiltrated data for the final submission.</i></p>
 </div>
-
-#### 5. Final Confirmation
-The lab was solved once the exfiltrated key was validated by the server.
-
 <div align="center">
   <img src="./screenshots/confirmation.png" alt="Lab Solved" width="85%">
   <p><i><b>Figure 5:</b> Final confirmation of lab completion.</i></p>
 </div>
 
----
+#### 3.3 Business Impact
+Exposes supposedly protected resources to unauthorized viewing and extraction. Obscurity does not equal security.
 
-### 🧠 Key Takeaway
-Security by obscurity (using long, random IDs) is not a replacement for proper authorization. If an identifier is used to fetch sensitive data, it must be protected by a server-side check that validates the user's permission to see that specific resource.
+#### 3.4 Remediation
+Implement strict server-side authorization checks evaluating if the user requesting the GUID matches the session owner. Stop exposing internal primary keys or sensitive GUIDs on public-facing pages.
 
-**Remediation:** Implement strict authorization checks. The server should ensure that the user ID requested in the parameter matches the ID stored in the user's authenticated session cookie.
----
+#### 3.5 References
+* **CWE-639:** https://cwe.mitre.org/data/definitions/639.html
+* **OWASP IDOR Prevention:** https://cheatsheetseries.owasp.org/cheatsheets/Insecure_Direct_Object_Reference_Prevention_Cheat_Sheet.html
