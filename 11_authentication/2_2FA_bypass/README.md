@@ -1,68 +1,86 @@
-# 🛡️ Lab: 2FA simple bypass
+# WEB APPLICATION PENETRATION TEST REPORT: 2FA SIMPLE BYPASS
 
-> **Category:** `Authentication`  
-> **Difficulty:** `Apprentice`  
-> **Status:** `Completed` ✅
+## 1. Document Control
 
----
-
-### 🎯 Objective
-The objective of this lab is to bypass a two-factor authentication (2FA) requirement by exploiting a session management flaw that allows direct access to protected pages after the first authentication factor is provided.
-
-### 🛠️ Exploit Strategy
-* **Vulnerability Point:** Incomplete authentication state enforcement.
-* **Payload Type:** Forced Browsing / Direct URL Access.
-* **Technical Logic:** The application logic follows a "Password Check -> Redirect to 2FA" flow. However, the session is technically established as "authenticated" as soon as the password is correct. Because the `/my-account` page does not verify if the 2FA step was actually completed, I can skip the 2FA page entirely by manually navigating to the account URL.
+| Detail | Value |
+| :--- | :--- |
+| **Report Date** | 19 March 2026 |
+| **Report Version** | 1.0 |
+| **Classification** | CONFIDENTIAL |
+| **Prepared By** | Ramil V. Deocariza Jr. |
 
 ---
 
-### 📑 Technical Walkthrough
+## 2. Executive Summary
+This report presents the findings of an assessment identifying a High-severity authentication flaw. The application's Multi-Factor Authentication (MFA) implementation can be trivially bypassed via forced browsing, leading to unauthorized account access.
 
-#### 1. Identification
-I began by logging into my own account with the provided credentials (`wiener:peter`). This allowed me to observe the standard flow and identify the endpoint URL that should only be served after successful multi-factor authentication.
+### 2.1 Overall Risk Rating
+**Rating: HIGH**
 
+### 2.2 Risk Summary
+| Critical | High | Medium | Low | Info | Total Findings |
+| :---: | :---: | :---: | :---: | :---: | :---: |
+| 0 | 1 | 0 | 0 | 0 | 1 |
+
+---
+
+## 3. Detailed Findings
+
+### VULN-001 — 2FA Bypass via Forced Browsing
+
+| Attribute | Detail |
+| :--- | :--- |
+| **Severity** | High |
+| **Finding ID** | VULN-001 |
+| **Affected URL** | `/login2` and `/my-account` |
+| **CWE** | CWE-287: Improper Authentication |
+| **CVSSv3 Score** | 8.1 (High) |
+| **OWASP Category**| A07:2021 – Identification and Authentication Failures |
+| **Status** | Open |
+
+#### 3.1 Description
+The application's logic follows a "Password Check -> Redirect to 2FA" flow. However, the session is granted an "authenticated" state as soon as the password is correct. Because the restricted `/my-account` page does not explicitly verify if the 2FA verification step was completed, an attacker can skip the 2FA page entirely by manually navigating directly to the account URL.
+
+#### 3.2 Proof of Concept (PoC)
+
+**1. Identification**
+Established a baseline authentication flow by accessing the `/my-account` page of a controlled user.
 <div align="center">
   <img src="./screenshots/identification.png" alt="Identification" width="85%">
-  <p><i><b>Figure 1:</b> Establishing a baseline authentication flow by accessing the /my-account page of my own user.</i></p>
+  <p><i><b>Figure 1:</b> Establishing a baseline authentication flow.</i></p>
 </div>
 
-#### 2. Reaching the Proxy Gate (Factor 1)
-I logged out and then attempted to log in using the victim's credentials (`carlos:montoya`). After submitting the correct password, the server validated the first factor and "proxied" me to the second-factor verification page. I am now presented with a form demanding a 4-digit security code.
-
+**2. Reaching the Proxy Gate (Factor 1)**
+Logged in using the victim's credentials. After submitting the correct password, the server validated the first factor and routed the session to the second-factor verification page (`/login2`).
 <div align="center">
   <img src="./screenshots/proxy.png" alt="Proxy" width="85%">
-  <p><i><b>Figure 2:</b> Reaching the 2FA wall on the /login2 endpoint for the target user, Carlos.</i></p>
+  <p><i><b>Figure 2:</b> Reaching the 2FA wall on the /login2 endpoint for the target user.</i></p>
 </div>
 
-#### 3. Execution of Path Traversal (Bypass)
-Instead of providing a code, I decided to test if the "Fully Authenticated" session state was already set. I decided to try and "traverse" directly to the protected path. I manually modified the URL in the address bar from `/login2` to `/my-account` and submitted the request.
-
+**3. Execution of Path Traversal (Bypass)**
+Executed forced browsing by manually modifying the URL in the address bar from `/login2` to `/my-account` to test session state enforcement.
 <div align="center">
   <img src="./screenshots/traversal.png" alt="Traversal" width="85%">
-  <p><i><b>Figure 3:</b> Executing forced browsing to the account page to bypass the intended security control.</i></p>
+  <p><i><b>Figure 3:</b> Executing forced browsing to the account page.</i></p>
 </div>
 
-#### 4. Verification
-The server immediately processed the request without requiring the second factor, proving that the MFA control was purely cosmetic. I am now successfully authenticated as Carlos, and my full profile details are visible.
-
+**4. Verification & Confirmation**
+The server processed the request without requiring the second factor, granting unauthorized access to the full profile details.
 <div align="center">
   <img src="./screenshots/verification.png" alt="Verification" width="85%">
-  <p><i><b>Figure 4:</b> Gaining unauthorized access to the Carlos account. Note the solved banner already active in the header.</i></p>
+  <p><i><b>Figure 4:</b> Gaining unauthorized access to the account.</i></p>
 </div>
-
-
-#### 5. Confirmation
-Final confirmation of lab completion. The "Congratulations, you solved the lab!" banner is clearly visible, marking the successful execution of the exploit.
-
 <div align="center">
   <img src="./screenshots/confirmation.png" alt="Confirmation" width="85%">
   <p><i><b>Figure 5:</b> The final "Lab solved" confirmation banner.</i></p>
 </div>
 
----
+#### 3.3 Business Impact
+Bypassing 2FA allows an attacker with compromised or brute-forced passwords to achieve full account takeover, completely neutralizing the defense-in-depth provided by multi-factor authentication.
 
-### 🧠 Key Takeaway
-2FA is only as strong as the session logic protecting the subsequent pages. Authentication must be treated as a multi-step process where "Fully Authenticated" status is only granted after *all* factors are verified.
+#### 3.4 Remediation
+Sessions must be held in a "partially-authenticated" state after the first factor is provided. Access to all protected resources must be strictly denied until a boolean "Fully Verified MFA" flag is set to true on the server side following successful token validation.
 
-**Remediation:** Administrative panels and sensitive areas should be protected by server-side authorization checks that look for a "Fully Verified MFA" flag. Sessions should be held in a "partially-authenticated" state and only allowed to access the 2FA verification page until the second factor is validated.
----
+#### 3.5 References
+* **CWE-287:** https://cwe.mitre.org/data/definitions/287.html
+* **OWASP MFA Cheat Sheet:** https://cheatsheetseries.owasp.org/cheatsheets/Multifactor_Authentication_Cheat_Sheet.html

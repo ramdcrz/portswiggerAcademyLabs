@@ -1,67 +1,86 @@
-# 🛡️ Lab: Username enumeration via different responses
+# WEB APPLICATION PENETRATION TEST REPORT: USERNAME ENUMERATION & BRUTE-FORCE
 
-> **Category:** `Authentication`  
-> **Difficulty:** `Apprentice`  
-> **Status:** `Completed` ✅
+## 1. Document Control
 
----
-
-### 🎯 Objective
-The objective of this lab is to enumerate a valid username based on subtle differences in the server's error messages and then brute-force that user's password to gain unauthorized access.
-
-### 🛠️ Exploit Strategy
-* **Vulnerability Point:** Login error message logic.
-* **Payload Type:** Username Enumeration & Password Brute-forcing (Intruder Sniper).
-* **Technical Logic:** The application returns different error messages depending on whether the username exists ("Invalid username" vs. "Incorrect password"). This information leak allows an attacker to verify a username first. Once the username is confirmed, a second brute-force attack on the password field becomes significantly faster and more likely to succeed.
+| Detail | Value |
+| :--- | :--- |
+| **Report Date** | 19 March 2026 |
+| **Report Version** | 1.0 |
+| **Classification** | CONFIDENTIAL |
+| **Prepared By** | Ramil V. Deocariza Jr. |
 
 ---
 
-### 📑 Technical Walkthrough
+## 2. Executive Summary
+This report details a High-severity authentication vulnerability. The application leaks the validity of usernames through observable response discrepancies, enabling an attacker to enumerate valid accounts and subsequently brute-force the password to achieve unauthorized access.
 
-#### 1. Identification
-I captured a failed login attempt in Burp Suite to identify the parameters used for authentication. I then transferred this request to Burp Intruder for automated probing.
+### 2.1 Overall Risk Rating
+**Rating: HIGH**
 
+### 2.2 Risk Summary
+| Critical | High | Medium | Low | Info | Total Findings |
+| :---: | :---: | :---: | :---: | :---: | :---: |
+| 0 | 1 | 0 | 0 | 0 | 1 |
+
+---
+
+## 3. Detailed Findings
+
+### VULN-001 — Account Enumeration via Observable Response Discrepancy
+
+| Attribute | Detail |
+| :--- | :--- |
+| **Severity** | High |
+| **Finding ID** | VULN-001 |
+| **Affected Endpoint** | `/login` |
+| **CWE** | CWE-204: Observable Response Discrepancy |
+| **CVSSv3 Score** | 7.4 (High) |
+| **OWASP Category**| A07:2021 – Identification and Authentication Failures |
+| **Status** | Open |
+
+#### 3.1 Description
+The application returns distinct error messages depending on whether a submitted username exists in the database ("Invalid username" vs. "Incorrect password"). This discrepancy allows attackers to rapidly compile a list of valid accounts using automated tools. Once a valid username is confirmed, the attacker can focus a brute-force attack entirely on the password field, exponentially increasing the likelihood of a successful account compromise.
+
+#### 3.2 Proof of Concept (PoC)
+
+**1. Identification**
+Captured a failed login attempt in Burp Suite and transferred the request to Burp Intruder to set up probing parameters.
 <div align="center">
   <img src="./screenshots/identification.png" alt="Login Interception" width="85%">
   <p><i><b>Figure 1:</b> Setting up the username enumeration positions in Burp Intruder.</i></p>
 </div>
 
-#### 2. Username Enumeration
-I performed a Sniper attack using a wordlist of common usernames. By analyzing the response lengths, I identified a specific username that triggered an "Incorrect password" message, confirming its existence in the database.
-
+**2. Username Enumeration**
+Executed a Sniper attack using a common username wordlist. Analyzed response lengths to isolate the username that triggered the "Incorrect password" message.
 <div align="center">
   <img src="./screenshots/proxy.png" alt="Intruder Results" width="85%">
   <p><i><b>Figure 2:</b> Discovering the valid username via response length differentiation.</i></p>
 </div>
 
-#### 3. Password Brute-forcing
-With the valid username identified, I reset the attack positions to target the password field. I ran a second Sniper attack using a password wordlist.
-
+**3. Password Brute-forcing**
+Targeted the discovered username and executed a second Sniper attack against the password parameter using a password dictionary.
 <div align="center">
   <img src="./screenshots/traversal.png" alt="302 Redirect Found" width="85%">
   <p><i><b>Figure 3:</b> Identifying the correct password through a 302 Found redirect status.</i></p>
 </div>
 
-#### 4. Credential Verification
-I successfully authenticated using the discovered credentials, granting me full access to the target user's account page.
-
+**4. Credential Verification**
+Successfully authenticated using the discovered credentials, granting full access to the target user's account page.
 <div align="center">
   <img src="./screenshots/verification.png" alt="Account Access" width="85%">
   <p><i><b>Figure 4:</b> Verifying access to the compromised user's profile.</i></p>
 </div>
-
-#### 5. Final Confirmation
-The lab was solved once the administrative boundary was crossed using the brute-forced credentials.
-
 <div align="center">
   <img src="./screenshots/confirmation.png" alt="Lab Solved" width="85%">
   <p><i><b>Figure 5:</b> Final confirmation of lab completion.</i></p>
 </div>
 
----
+#### 3.3 Business Impact
+Allows attackers to easily identify valid user accounts, paving the way for targeted credential stuffing or brute-force attacks that result in account takeover and unauthorized access to user data.
 
-### 🧠 Key Takeaway
-Detailed error messages are a gift to attackers. Authentication systems should return generic messages like "Invalid username or password" to prevent enumeration.
+#### 3.4 Remediation
+Implement generic error messaging for all authentication failures (e.g., "Invalid username or password") to prevent enumeration. Enforce strict account lockout policies or progressive rate-limiting (throttling) after a small number of consecutive failed login attempts.
 
-**Remediation:** Implement generic error messaging for all authentication failures and enforce account lockout policies or rate-limiting (throttling) to prevent brute-force attacks.
----
+#### 3.5 References
+* **CWE-204:** https://cwe.mitre.org/data/definitions/204.html
+* **OWASP Authentication Cheat Sheet:** https://cheatsheetseries.owasp.org/cheatsheets/Authentication_Cheat_Sheet.html

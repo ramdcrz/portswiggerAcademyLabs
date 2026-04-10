@@ -1,67 +1,83 @@
-# 🛡️ Lab: Password reset broken logic
+# WEB APPLICATION PENETRATION TEST REPORT: PASSWORD RESET BROKEN LOGIC
 
-> **Category:** `Authentication`  
-> **Difficulty:** `Apprentice`  
-> **Status:** `Completed` ✅
+## 1. Document Control
 
----
-
-### 🎯 Objective
-The objective of this lab is to exploit a logic flaw in the password reset functionality to reset the password of the user `carlos` without possessing a valid reset token.
-
-### 🛠️ Exploit Strategy
-* **Vulnerability Point:** Server-side verification of the `temp-forgot-password-token`.
-* **Payload Type:** Parameter Manipulation / Logic Bypass.
-* **Technical Logic:** The application fails to enforce token validation if the token parameter is empty. By stripping the token value and manually specifying a target username in the request body, I can trick the backend into updating the password for an arbitrary account, as the server defaults to using the `username` parameter for the database update without a valid session or token check.
+| Detail | Value |
+| :--- | :--- |
+| **Report Date** | 19 March 2026 |
+| **Report Version** | 1.0 |
+| **Classification** | CONFIDENTIAL |
+| **Prepared By** | Ramil V. Deocariza Jr. |
 
 ---
 
-### 📑 Technical Walkthrough
+## 2. Executive Summary
+This report details a Critical vulnerability within the password reset functionality. Flawed backend logic allows an attacker to reset the password of any user without possessing a valid security token, leading to immediate account compromise.
 
-#### 1. Identification
-I initiated a legitimate password reset for my own account to capture the structure of the final submission request.
+### 2.1 Overall Risk Rating
+**Rating: CRITICAL**
 
+### 2.2 Risk Summary
+| Critical | High | Medium | Low | Info | Total Findings |
+| :---: | :---: | :---: | :---: | :---: | :---: |
+| 1 | 0 | 0 | 0 | 0 | 1 |
+
+---
+
+## 3. Detailed Findings
+
+### VULN-001 — Unauthorized Password Reset via Logic Bypass
+
+| Attribute | Detail |
+| :--- | :--- |
+| **Severity** | Critical |
+| **Finding ID** | VULN-001 |
+| **Affected Endpoint** | `POST /forgot-password` |
+| **CWE** | CWE-640: Weak Password Recovery Mechanism for Forgotten Password |
+| **CVSSv3 Score** | 9.8 (Critical) |
+| **OWASP Category**| A07:2021 – Identification and Authentication Failures |
+| **Status** | Open |
+
+#### 3.1 Description
+The application fails to strictly enforce the presence and validity of the `temp-forgot-password-token`. If an attacker submits a password reset POST request with an empty or removed token parameter, the server bypasses the token check entirely. It then updates the password for whichever account is specified in the client-supplied `username` parameter, enabling arbitrary account takeover.
+
+#### 3.2 Proof of Concept (PoC)
+
+**1. Identification & Interception**
+Initiated a legitimate password reset for a controlled account and captured the final submission request in Burp Suite.
 <div align="center">
   <img src="./screenshots/identification.png" alt="Identification" width="85%">
   <p><i><b>Figure 1:</b> Accessing the password reset interface.</i></p>
 </div>
-
-#### 2. Proxy Interception
-I captured the password change request in Burp Suite. This request contains both the secret token (in the URL) and the target username (in the body).
-
 <div align="center">
   <img src="./screenshots/proxy.png" alt="Proxy" width="85%">
   <p><i><b>Figure 2:</b> Intercepting the password reset POST request.</i></p>
 </div>
 
-#### 3. Execution of Traversal (Exploitation)
-In Burp Repeater, I removed the token value and changed the `username` parameter to `carlos`. The server accepted the request, proving that the token check is bypassed when the value is null or empty.
-
+**2. Execution of Traversal (Exploitation)**
+In Burp Repeater, removed the token value and altered the `username` parameter to target the victim account `carlos`.
 <div align="center">
   <img src="./screenshots/traversal.png" alt="Traversal" width="85%">
   <p><i><b>Figure 3:</b> Manipulating the request to target Carlos's account.</i></p>
 </div>
 
-#### 4. Verification
-I successfully authenticated as `carlos` using the password I set in the previous step, confirming that his account has been compromised.
-
+**3. Verification & Confirmation**
+The server accepted the request. Successfully authenticated as `carlos` using the newly set password, confirming full account compromise.
 <div align="center">
   <img src="./screenshots/verification.png" alt="Verification" width="85%">
   <p><i><b>Figure 4:</b> Gaining unauthorized access to the victim's account page.</i></p>
 </div>
-
-#### 5. Final Confirmation
-The lab status updated to "Solved" upon accessing the compromised account.
-
 <div align="center">
   <img src="./screenshots/confirmation.png" alt="Confirmation" width="85%">
   <p><i><b>Figure 5:</b> Final confirmation of lab completion.</i></p>
 </div>
 
----
+#### 3.3 Business Impact
+Complete failure of the password recovery mechanism allows trivial, unauthenticated takeover of any user account, including administrative accounts, resulting in total system compromise and data breach.
 
-### 🧠 Key Takeaway
-Security mechanisms must "fail closed." If a required security parameter like a token is missing or invalid, the entire operation must be aborted. Relying on client-side parameters like `username` for sensitive updates without strict server-side validation is a major logic flaw.
+#### 3.4 Remediation
+Ensure that security controls "fail closed." The backend must cryptographically tie the reset token to the specific user requesting it. The server should use the identity explicitly linked to a *valid, present* token to perform the database update, entirely ignoring client-supplied `username` parameters during the final submission phase.
 
-**Remediation:** Ensure that the password reset token is strictly validated and cryptographically tied to the specific user session. The server should use the identity associated with a *valid* token to perform the update, rather than a user-supplied username parameter.
----
+#### 3.5 References
+* **CWE-640:** https://cwe.mitre.org/data/definitions/640.html
+* **OWASP Forgot Password Cheat Sheet:** https://cheatsheetseries.owasp.org/cheatsheets/Forgot_Password_Cheat_Sheet.html
