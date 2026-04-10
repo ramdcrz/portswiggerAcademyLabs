@@ -1,67 +1,83 @@
-# 🛡️ Lab: File path traversal, simple case
+# WEB APPLICATION PENETRATION TEST REPORT: FILE PATH TRAVERSAL
 
-> **Category:** `Path Traversal`  
-> **Difficulty:** `Apprentice`  
-> **Status:** `Completed` ✅
+## 1. Document Control
 
----
-
-### 🎯 Objective
-The objective of this lab is to exploit a path traversal vulnerability in an image-loading feature to retrieve the contents of the sensitive `/etc/passwd` file from the server.
-
-### 🛠️ Exploit Strategy
-* **Vulnerability Point:** `filename` parameter in the `/image` endpoint.
-* **Payload Type:** Relative Path Traversal (`../`).
-* **Technical Logic:** The application takes a filename and appends it to a base directory path (e.g., `/var/www/images/`). By using `../../../`, I am instructing the operating system to move up three levels in the directory tree to the root directory, and then navigate into `/etc/passwd`.
+| Detail | Value |
+| :--- | :--- |
+| **Report Date** | 17 March 2026 |
+| **Report Version** | 1.0 |
+| **Classification** | CONFIDENTIAL |
+| **Prepared By** | Ramil V. Deocariza Jr. |
 
 ---
 
-### 📑 Technical Walkthrough
+## 2. Executive Summary
+This report highlights the discovery of a Path Traversal vulnerability. The application fails to sanitize file requests, permitting an attacker to escape the web root directory and exfiltrate highly sensitive OS-level configuration files.
 
-#### 1. Identification
-I identified that product images are loaded via a dynamic parameter. This often indicates that the server-side code is reading files directly from the disk based on user input.
+### 2.1 Overall Risk Rating
+**Rating: HIGH**
 
+### 2.2 Risk Summary
+| Critical | High | Medium | Low | Info | Total Findings |
+| :---: | :---: | :---: | :---: | :---: | :---: |
+| 0 | 1 | 0 | 0 | 0 | 1 |
+
+---
+
+## 3. Detailed Findings
+
+### VULN-001 — Arbitrary File Read via Path Traversal
+
+| Attribute | Detail |
+| :--- | :--- |
+| **Severity** | High |
+| **Finding ID** | VULN-001 |
+| **Affected URL** | `/image` (`filename` parameter) |
+| **CWE** | CWE-22: Improper Limitation of a Pathname to a Restricted Directory |
+| **CVSSv3 Score** | 7.5 (High) |
+| **OWASP Category**| A01:2021 – Broken Access Control |
+| **Status** | Open |
+
+#### 3.1 Description
+The application utilizes a `filename` parameter to serve images from the filesystem. Because the application does not strip directory traversal sequences, an attacker can provide the payload `../../../etc/passwd`. This instructs the underlying OS API to navigate up to the root directory and read arbitrary system files.
+
+#### 3.2 Proof of Concept (PoC)
+
+**1. Identification**
+Identified the dynamic parameter responsible for fetching product images from the server.
 <div align="center">
   <img src="./screenshots/identification.png" alt="Identification" width="85%">
   <p><i><b>Figure 1:</b> Identifying the image-loading request in Burp Suite.</i></p>
 </div>
 
-#### 2. Injecting the Traversal Payload
-In **Burp Repeater**, I replaced the legitimate image filename with a traversal sequence designed to reach the root of the filesystem.
-
+**2. Injecting the Traversal Payload**
+Modified the parameter in Burp Repeater, replacing the image filename with a dot-dot-slash relative path traversal sequence.
 <div align="center">
   <img src="./screenshots/proxy.png" alt="Payload Injection" width="85%">
   <p><i><b>Figure 2:</b> Injecting the dot-dot-slash sequence.</i></p>
 </div>
 
-#### 3. Data Exfiltration
-Upon sending the request, the server resolved the path and returned the contents of `/etc/passwd` instead of an image file.
-
+**3. Data Exfiltration & Verification**
+The server resolved the path and returned the raw contents of the `/etc/passwd` file in the HTTP response body.
 <div align="center">
   <img src="./screenshots/traversal.png" alt="Password File Retrieval" width="85%">
   <p><i><b>Figure 3:</b> Successfully reading sensitive system files via the web interface.</i></p>
 </div>
-
-#### 4. Verification
-The response confirms that the application lacks proper input validation or path normalization, allowing unrestricted access to the filesystem.
-
 <div align="center">
   <img src="./screenshots/verification.png" alt="Verification" width="85%">
   <p><i><b>Figure 4:</b> Detailed view of the exfiltrated user data.</i></p>
 </div>
-
-#### 5. Final Confirmation
-The retrieval of the file satisfied the lab requirements and triggered the completion state.
-
 <div align="center">
   <img src="./screenshots/confirmation.png" alt="Lab Solved" width="85%">
   <p><i><b>Figure 5:</b> Final confirmation of lab completion.</i></p>
 </div>
 
----
+#### 3.3 Business Impact
+Attackers can retrieve sensitive system files, source code, hardcoded credentials, API keys, and environment variables, leading to further systemic compromise.
 
-### 🧠 Key Takeaway
-Path traversal is often a gateway to full system compromise. If an attacker can read configuration files, they can find database credentials or SSH keys.
+#### 3.4 Remediation
+Avoid passing user input directly to filesystem APIs. If dynamic file loading is required, use an indirect object reference (like a database ID) or strictly validate the input against an exact whitelist of permitted filenames, ensuring no path metacharacters (e.g., `../` or `/`) are processed.
 
-**Remediation:** Avoid passing user-supplied input directly to filesystem APIs. Use a whitelist of allowed filenames or store files in a database/cloud storage instead of the local server filesystem.
----
+#### 3.5 References
+* **CWE-22:** https://cwe.mitre.org/data/definitions/22.html
+* **OWASP Path Traversal Prevention:** https://owasp.org/www-community/attacks/Path_Traversal

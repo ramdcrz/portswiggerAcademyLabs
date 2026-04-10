@@ -1,68 +1,86 @@
-# 🛡️ Lab: OS command injection, simple case
+# WEB APPLICATION PENETRATION TEST REPORT: OS COMMAND INJECTION
 
-> **Category:** `OS Command Injection`  
-> **Difficulty:** `Apprentice`  
-> **Status:** `Completed` ✅
+## 1. Document Control
 
----
-
-### 🎯 Objective
-The objective of this lab is to exploit an OS command injection vulnerability in the product stock checker to execute the `whoami` command and identify the user context under which the application is running.
-
-### 🛠️ Exploit Strategy
-* **Vulnerability Point:** `storeId` parameter in the stock check feature.
-* **Payload Type:** Command Injection via shell metacharacters (`|`).
-* **Technical Logic:** The application passes user-supplied input directly into a system shell command. By appending a pipe operator (`|`), I can chain an additional command to the original execution. The server executes my injected `whoami` command and returns the standard output (stdout) directly in the HTTP response.
+| Detail | Value |
+| :--- | :--- |
+| **Report Date** | 17 March 2026 |
+| **Report Version** | 1.0 |
+| **Classification** | CONFIDENTIAL |
+| **Prepared By** | Ramil V. Deocariza Jr. |
 
 ---
 
-### 📑 Technical Walkthrough
+## 2. Executive Summary
+This report documents a Critical vulnerability involving OS Command Injection. The application unsafely passes user input to an underlying system shell, resulting in unauthorized Remote Code Execution (RCE) on the host server.
 
-#### 1. Identification
-I intercepted the stock check request and identified that the `storeId` and `productId` are passed to the backend, likely as arguments to a server-side script or binary.
+### 2.1 Overall Risk Rating
+**Rating: CRITICAL**
 
+### 2.2 Risk Summary
+| Critical | High | Medium | Low | Info | Total Findings |
+| :---: | :---: | :---: | :---: | :---: | :---: |
+| 1 | 0 | 0 | 0 | 0 | 1 |
+
+---
+
+## 3. Detailed Findings
+
+### VULN-001 — Remote Code Execution via OS Command Injection
+
+| Attribute | Detail |
+| :--- | :--- |
+| **Severity** | Critical |
+| **Finding ID** | VULN-001 |
+| **Affected Component** | `/product/stock` (`storeId` parameter) |
+| **CWE** | CWE-78: Improper Neutralization of Special Elements used in an OS Command |
+| **CVSSv3 Score** | 9.8 (Critical) |
+| **OWASP Category**| A03:2021 – Injection |
+| **Status** | Open |
+
+#### 3.1 Description
+The application passes user-supplied input from the `storeId` parameter directly into a system shell command without sanitization. By appending shell metacharacters such as the pipe operator (`|`), an attacker can terminate the intended command and chain arbitrary OS commands (e.g., `whoami`). The standard output of the injected command is reflected in the HTTP response.
+
+#### 3.2 Proof of Concept (PoC)
+
+**1. Identification**
+Intercepted the stock check request to identify the parameters passed to the backend system.
 <div align="center">
   <img src="./screenshots/identification.png" alt="Identification" width="85%">
   <p><i><b>Figure 1:</b> Intercepting the baseline stock check request.</i></p>
 </div>
 
-#### 2. Injecting the Command
-In **Burp Repeater**, I appended the pipe operator followed by the `whoami` command to the `storeId` parameter. This tells the underlying shell to execute the stock check and then immediately execute my command.
-
+**2. Injecting the Command**
+Appended the pipe operator followed by the `whoami` command (`| whoami`) to the `storeId` parameter in Burp Repeater.
 <div align="center">
   <img src="./screenshots/proxy.png" alt="Payload Injection" width="85%">
   <p><i><b>Figure 2:</b> Injecting the command separator and the 'whoami' command.</i></p>
 </div>
 
-#### 3. Command Execution Results
-The server processed the request and returned the raw output of the `whoami` command in the response body, revealing the operating system username.
-
+**3. Command Execution Results**
+The server executed the command and returned the operating system username in the raw HTTP response.
 <div align="center">
   <img src="./screenshots/traversal.png" alt="Command Output" width="85%">
   <p><i><b>Figure 3:</b> Observing the successfully executed command output in the response.</i></p>
 </div>
 
-#### 4. Verification of System Access
-I verified the extent of the injection by observing how the application handles the output. The fact that the output is rendered directly indicates an "in-band" or "classic" command injection.
-
+**4. Verification & Confirmation**
+Analyzed the in-band reflection to confirm complete execution context.
 <div align="center">
   <img src="./screenshots/verification.png" alt="Verification" width="85%">
   <p><i><b>Figure 4:</b> Analyzing the reflected output from the server.</i></p>
 </div>
-
-#### 5. Final Confirmation
-The execution of the `whoami` command satisfied the lab's requirements.
-
 <div align="center">
   <img src="./screenshots/confirmation.png" alt="Lab Solved" width="85%">
   <p><i><b>Figure 5:</b> Final confirmation of lab completion.</i></p>
 </div>
 
----
+#### 3.3 Business Impact
+OS Command Injection yields full Remote Code Execution (RCE). An attacker can read, modify, or destroy any data on the server, pivot to other internal network assets, and install persistent backdoors.
 
-### 🧠 Key Takeaway
-Command injection is often the result of using functions like `exec()`, `system()`, or `passthru()` in PHP, or `child_process.exec()` in Node.js, without sanitizing user input. It provides an attacker with a foothold on the server.
+#### 3.4 Remediation
+Never invoke underlying OS commands using user-supplied input. If system interaction is unavoidable, use language-specific, secure APIs (e.g., executing parameterized binaries where arguments are strictly passed as arrays, not concatenated strings).
 
-**Remediation:** Never pass raw user input to OS commands. Use built-in API functions that don't involve the shell, or implement a strict whitelist of allowed characters and values.
-
----
+#### 3.5 References
+* **CWE-78:** https://cwe.mitre.org/data/definitions/78.html
+* **OWASP Command Injection Prevention:** https://cheatsheetseries.owasp.org/cheatsheets/OS_Command_Injection_Defense_Cheat_Sheet.html

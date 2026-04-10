@@ -1,67 +1,86 @@
-# 🛡️ Lab: Basic SSRF against another back-end system
+# WEB APPLICATION PENETRATION TEST REPORT: SSRF (INTERNAL NETWORK SCANNING)
 
-> **Category:** `Server-Side Request Forgery (SSRF)`  
-> **Difficulty:** `Apprentice`  
-> **Status:** `Completed` ✅
+## 1. Document Control
 
----
-
-### 🎯 Objective
-The objective of this lab is to leverage an SSRF vulnerability in a stock check feature to scan an internal IP range (`192.168.0.X`), discover a hidden administrative interface on port `8080`, and delete the user `carlos`.
-
-### 🛠️ Exploit Strategy
-* **Vulnerability Point:** `stockApi` parameter.
-* **Payload Type:** SSRF with Internal IP Brute-forcing.
-* **Technical Logic:** The application's server-side code fetches data from a URL provided in the `stockApi` parameter. By using **Burp Intruder** to iterate through the final octet of the `192.168.0.0/24` subnet, I identified a responsive internal host. Because the request originates from the trusted local network, the back-end system allowed me to execute administrative commands without external authentication.
+| Detail | Value |
+| :--- | :--- |
+| **Report Date** | 17 March 2026 |
+| **Report Version** | 1.0 |
+| **Classification** | CONFIDENTIAL |
+| **Prepared By** | Ramil V. Deocariza Jr. |
 
 ---
 
-### 📑 Technical Walkthrough
+## 2. Executive Summary
+This report outlines the exploitation of a Server-Side Request Forgery (SSRF) vulnerability. The flaw was weaponized to perform an internal network scan, revealing a hidden administrative backend service which was subsequently used to execute unauthorized commands.
 
-#### 1. Identification
-I began by intercepting the "Check stock" request. I identified that the `stockApi` parameter was fetching data from an internal URL, making it a primary target for SSRF probing.
+### 2.1 Overall Risk Rating
+**Rating: HIGH**
 
+### 2.2 Risk Summary
+| Critical | High | Medium | Low | Info | Total Findings |
+| :---: | :---: | :---: | :---: | :---: | :---: |
+| 0 | 1 | 0 | 0 | 0 | 1 |
+
+---
+
+## 3. Detailed Findings
+
+### VULN-001 — SSRF Allowing Internal Network Brute-forcing
+
+| Attribute | Detail |
+| :--- | :--- |
+| **Severity** | High |
+| **Finding ID** | VULN-001 |
+| **Affected URL** | `/product/stock` (`stockApi` parameter) |
+| **CWE** | CWE-918: Server-Side Request Forgery (SSRF) |
+| **CVSSv3 Score** | 8.5 (High) |
+| **OWASP Category**| A10:2021 – Server-Side Request Forgery (SSRF) |
+| **Status** | Open |
+
+#### 3.1 Description
+The server-side code fetches data from a URL provided in the `stockApi` parameter. Because there are no restrictions on the destination IP, an attacker can use Burp Intruder to iterate through internal subnets (e.g., `192.168.0.X:8080`) to discover responsive internal hosts. Trusting the request's local origin, the backend system permits administrative actions without authentication.
+
+#### 3.2 Proof of Concept (PoC)
+
+**1. Identification**
+Intercepted the stock request, identifying the `stockApi` parameter as a potential SSRF vector targeting the internal network.
 <div align="center">
   <img src="./screenshots/identification.jpg" alt="Identification" width="85%">
   <p><i><b>Figure 1:</b> Capturing the baseline request with the vulnerable stockApi parameter.</i></p>
 </div>
 
-#### 2. Internal Network Scanning
-I moved the request to **Burp Intruder** and performed a horizontal scan of the internal network range. My scan revealed that the host at `192.168.0.3` was active and returned a `200 OK` status code.
-
+**2. Internal Network Scanning**
+Used Burp Intruder to perform a horizontal scan of the `192.168.0.0/24` subnet, revealing an active host at `192.168.0.3:8080` returning a `200 OK`.
 <div align="center">
   <img src="./screenshots/proxy.jpg" alt="Intruder Scan Results" width="85%">
-  <p><i><b>Figure 2:</b> Identifying the hidden admin interface at 192.168.0.3:8080 via Intruder.</i></p>
+  <p><i><b>Figure 2:</b> Identifying the hidden admin interface via Intruder.</i></p>
 </div>
 
-#### 3. Crafting the Administrative Payload
-Using the discovered IP address, I moved to **Burp Repeater** to craft the final attack. I updated the `stockApi` URL to target the specific deletion endpoint for the user `carlos`.
-
+**3. Crafting the Administrative Payload**
+Updated the `stockApi` URL in Repeater to target the specific deletion endpoint for the user `carlos` on the discovered internal host.
 <div align="center">
   <img src="./screenshots/traversal.png" alt="Crafting Deletion Request" width="85%">
-  <p><i><b>Figure 3:</b> Constructing the SSRF payload to trigger the deletion of 'carlos'.</i></p>
+  <p><i><b>Figure 3:</b> Constructing the SSRF payload to trigger deletion.</i></p>
 </div>
 
-#### 4. Execution & Verification
-Upon sending the request, the server responded with a `302 Found`, indicating a successful redirect to the admin panel after the deletion command was processed.
-
+**4. Execution & Verification**
+The server responded with a `302 Found`, confirming the internal backend successfully processed the deletion redirect.
 <div align="center">
   <img src="./screenshots/verification.png" alt="Server Response" width="85%">
   <p><i><b>Figure 4:</b> The server's 302 response confirming the command execution.</i></p>
 </div>
-
-#### 5. Final Confirmation
-I refreshed the application to verify the solve. The "Congratulations" banner confirmed that the user `carlos` was successfully removed from the back-end system.
-
 <div align="center">
   <img src="./screenshots/confirmation.jpg" alt="Lab Solved" width="85%">
   <p><i><b>Figure 5:</b> Successful lab completion banner.</i></p>
 </div>
 
----
+#### 3.3 Business Impact
+Allows attackers to map internal infrastructure, identify unpatched legacy systems, and exploit internal microservices that lack external authentication (Zero Trust violations).
 
-### 🧠 Key Takeaway
-Internal services often lack the authentication layers of public-facing web apps. SSRF allows an attacker to bypass the network perimeter and act as a trusted internal entity.
+#### 3.4 Remediation
+Applications must not accept arbitrary URLs from the client. Use hardcoded internal references or a strict whitelist. Internal services should mandate authentication and authorization regardless of whether the request originates from the local network.
 
-**Remediation:** Applications should use a strict whitelist for any backend-requested URLs. Additionally, internal administrative services should require authentication regardless of the source IP address (Zero Trust).
----
+#### 3.5 References
+* **CWE-918:** https://cwe.mitre.org/data/definitions/918.html
+* **OWASP SSRF Prevention:** https://cheatsheetseries.owasp.org/cheatsheets/Server_Side_Request_Forgery_Prevention_Cheat_Sheet.html
