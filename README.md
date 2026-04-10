@@ -7,7 +7,7 @@
 ## 📌 Project Overview
 This repository documents my progress through the **PortSwigger Web Security Academy** for my **Information Assurance and Security** course at **New Era University**.
 
-The goal is to master web application security fundamentals, focusing on vulnerability identification, exploitation, and mitigation using **Burp Suite**.
+The goal is to master web application security fundamentals, focusing on vulnerability identification, manual exploitation, and mitigation using **Burp Suite**. All completed labs have been formally documented following standard **Penetration Test Report** frameworks.
 
 ---
 
@@ -18,14 +18,15 @@ The goal is to master web application security fundamentals, focusing on vulnera
 
 ---
 
-## 📈 Mid-Term Progress Report
+## 📈 Progress Report
 ### Executive Summary
-As of March 2026, I have successfully identified, exploited, and documented **11 vulnerabilities** across the SQL Injection and Cross-site Scripting categories. This journey has focused on moving beyond automated tools to understand the manual logic required to bypass modern security filters.
+As of March 2026, I have successfully identified, exploited, and documented **36 vulnerabilities** across 12 distinct security categories. This repository has transitioned from basic walkthroughs to professional-grade vulnerability reports, detailing exploit strategies, proof-of-concept execution, business impact, and remediation advice mapping to OWASP and MITRE CWE standards.
 
 ### 🧠 Core Skills Acquired
-* **Manual Exploitation:** Utilizing Burp Suite (Proxy & Repeater) to manipulate raw HTTP requests and observe server-side behavior.
-* **Contextual Analysis:** Determining if a vulnerability exists in HTML, Attribute, or JavaScript contexts.
-* **Filter Evasion:** Mastering techniques like attribute escaping, pseudo-protocol injection (`javascript:`), and JavaScript string breakout to bypass HTML encoding.
+* **Manual Exploitation:** Utilizing Burp Suite (Proxy, Repeater, Intruder) to manipulate raw HTTP requests, intercept WebSockets, and observe server-side logic flaws.
+* **Access Control & IDOR:** Bypassing horizontal and vertical access boundaries, executing mass assignments, and uncovering Execution After Redirect (EAR) flaws.
+* **Advanced Injection & SSRF:** Pivoting through XML parsers (XXE) and exploiting internal networks via Server-Side Request Forgery and OS Command Injection.
+* **UI Redressing:** Bypassing CSRF tokens and client-side frame busters using HTML5 sandboxing and Clickjacking overlays.
 
 ---
 
@@ -52,79 +53,79 @@ As of March 2026, I have successfully identified, exploited, and documented **11
 - [x] 9_reflectedXssJavascriptStringBreakout
 </details>
 
-<details>
+<details open>
 <summary><b>3. Cross-Site Request Forgery (CSRF)</b></summary>
 
-- [ ] CSRF vulnerability with no defenses
+- [x] CSRF vulnerability with no defenses
 </details>
 
-<details>
+<details open>
 <summary><b>4. Clickjacking</b></summary>
 
-- [ ] Basic clickjacking with CSRF token protection
-- [ ] Clickjacking with form input data prefilled from a URL parameter
-- [ ] Clickjacking with a frame buster script
+- [x] Basic clickjacking with CSRF token protection
+- [x] Clickjacking with form input data prefilled from a URL parameter
+- [x] Clickjacking with a frame buster script
 </details>
 
-<details>
+<details open>
 <summary><b>5. Cross-origin resource sharing (CORS)</b></summary>
 
-- [ ] CORS vulnerability with basic origin reflection
-- [ ] CORS vulnerability with trusted null origin
+- [x] CORS vulnerability with basic origin reflection
+- [x] CORS vulnerability with trusted null origin
 </details>
 
-<details>
+<details open>
 <summary><b>6. XML external entity (XXE) injection</b></summary>
 
-- [ ] Exploiting XXE using external entities to retrieve files
-- [ ] Exploiting XXE to perform SSRF attacks
+- [x] Exploiting XXE using external entities to retrieve files
+- [x] Exploiting XXE to perform SSRF attacks
 </details>
 
-<details>
+<details open>
 <summary><b>7. Server-side request forgery (SSRF)</b></summary>
 
-- [ ] Basic SSRF against the local server
-- [ ] Basic SSRF against another back-end system
+- [x] Basic SSRF against the local server
+- [x] Basic SSRF against another back-end system
 </details>
 
-<details>
+<details open>
 <summary><b>8. OS command injection</b></summary>
 
-- [ ] OS command injection, simple case
+- [x] OS command injection, simple case
 </details>
 
-<details>
+<details open>
 <summary><b>9. Path traversal</b></summary>
 
-- [ ] File path traversal, simple case
+- [x] File path traversal, simple case
 </details>
 
-<details>
+<details open>
 <summary><b>10. Access control vulnerabilities</b></summary>
 
-- [ ] Unprotected admin functionality
-- [ ] Unprotected admin functionality with unpredictable URL
-- [ ] User role controlled by request parameter
-- [ ] User role can be modified in user profile
-- [ ] User ID controlled by request parameter 
-- [ ] User ID controlled by request parameter, with unpredictable user IDs
-- [ ] User ID controlled by request parameter with data leakage in redirect 
-- [ ] User ID controlled by request parameter with password disclosure
-- [ ] Insecure direct object references
+- [x] Unprotected admin functionality
+- [x] Unprotected admin functionality with unpredictable URL
+- [x] User role controlled by request parameter
+- [x] User role can be modified in user profile
+- [x] User ID controlled by request parameter 
+- [x] User ID controlled by request parameter, with unpredictable user IDs
+- [x] User ID controlled by request parameter with data leakage in redirect 
+- [x] User ID controlled by request parameter with password disclosure
+- [x] Insecure direct object references
 </details>
 
-<details>
+<details open>
 <summary><b>11. Authentication</b></summary>
 
-- [ ] Username enumeration via different responses
-- [ ] 2FA simple bypass
-- [ ] Password reset broken logic
+- [x] Username enumeration via different responses
+- [x] 2FA simple bypass
+- [x] Password reset broken logic
 </details>
 
-<details>
+<details open>
 <summary><b>12. WebSockets</b></summary>
 
-- [ ] Manipulating WebSocket messages to exploit vulnerabilities
+- [x] Manipulating WebSocket messages to exploit vulnerabilities
 </details>
 
 <details>
@@ -147,10 +148,10 @@ As of March 2026, I have successfully identified, exploited, and documented **11
 ## 📂 Repository Structure
 * **`[categoryName]/`**
     * **`[labName]/`**
-        * `README.md` (Technical Walkthrough)
-        * `screenshots/` (Evidence)
+        * `README.md` (Penetration Test Report & PoC)
+        * `screenshots/` (Visual Evidence)
 
 ---
 
 ## 📜 Disclaimer
-Educational purposes only. Labs performed in the PortSwigger sandbox environment.
+Educational purposes only. Labs performed in the PortSwigger Academy authorized sandbox environment.
