@@ -1,64 +1,75 @@
-# 🛡️ Lab: DOM XSS in document.write sink using source location.search
+# WEB APPLICATION PENETRATION TEST REPORT: DOM-BASED XSS
 
-> **Category:** `Cross-site Scripting (XSS)`  
-> **Difficulty:** `Apprentice`  
-> **Status:** `Completed` ✅
+## 1. Document Control
 
----
-
-### 🎯 Objective
-The objective of this lab is to exploit a **DOM-based Cross-site Scripting (DOM XSS)** vulnerability. The application uses a `document.write` sink to output data from `location.search` without proper sanitization, allowing for an attribute escape and script injection.
-
-### 🛠️ Exploit Strategy
-* **Source:** `location.search` (the query string in the URL).
-* **Sink:** `document.write()`.
-* **Vulnerability Point:** The search tracking functionality.
-* **Payload:** `"><svg onload=alert(1)>`
-* **Technical Logic:** The script on the page takes the search term and writes it into an `<img>` tag: 
-    `document.write('<img src="/resources/images/tracker.gif?searchTerms='+query+'">');`
-    By starting the payload with `">`, I close the `src` attribute and the `<img>` tag itself, allowing the subsequent `<svg>` tag to be rendered and executed by the browser.
+| Detail | Value |
+| :--- | :--- |
+| **Report Date** | 15 March 2026 |
+| **Report Version** | 1.0 |
+| **Classification** | CONFIDENTIAL |
+| **Prepared By** | Ramil V. Deocariza Jr. |
 
 ---
 
-### 📑 Technical Walkthrough
+## 2. Executive Summary
+This report details a DOM-based Cross-Site Scripting (XSS) vulnerability caused by insecure client-side JavaScript processing data from the URL and writing it to the Document Object Model.
 
-#### 1. Identification & Reconnaissance
-I searched for a random alphanumeric string and inspected the DOM. I discovered that the input was being reflected inside the `src` attribute of an `<img>` element used for tracking.
+### 2.1 Overall Risk Rating
+**Rating: MEDIUM**
 
+### 2.2 Risk Summary
+| Critical | High | Medium | Low | Info | Total Findings |
+| :---: | :---: | :---: | :---: | :---: | :---: |
+| 0 | 0 | 1 | 0 | 0 | 1 |
+
+---
+
+## 3. Detailed Findings
+
+### VULN-001 — DOM XSS in document.write Sink
+
+| Attribute | Detail |
+| :--- | :--- |
+| **Severity** | Medium |
+| **Finding ID** | VULN-001 |
+| **Affected Component**| `location.search` (Source) to `document.write` (Sink) |
+| **CWE** | CWE-79: Improper Neutralization of Input During Web Page Generation |
+| **CVSSv3 Score** | 6.1 (Medium) |
+| **OWASP Category**| A03:2021 – Injection |
+| **Status** | Open |
+
+#### 3.1 Description
+The application utilizes a `document.write` sink to output data obtained from `location.search` without proper sanitization. The script writes an `<img>` tag for tracking: `document.write('<img src="/resources/images/tracker.gif?searchTerms='+query+'">');`. An attacker can manipulate the query string to escape the image attribute and inject executable HTML.
+
+#### 3.2 Proof of Concept (PoC)
+**1. Identification**
+Inspected the DOM to observe the input reflected inside the `src` attribute.
 <div align="center">
   <img src="./screenshots/identification.png" alt="Identification" width="85%">
-  <p><i><b>Figure 1:</b> Inspecting the DOM to see the input reflected in an img attribute.</i></p>
+  <p><i><b>Figure 1:</b> Inspecting the DOM for the sink.</i></p>
 </div>
 
-#### 2. Exploitation (Breaking the Attribute)
-I crafted a payload to break out of the `<img>` tag context. By entering `"><svg onload=alert(1)>`, I force the browser to finish the image tag prematurely and begin parsing a new SVG element.
-
+**2. Exploitation & Verification**
+Crafted the payload `"><svg onload=alert(1)>` to break out of the `<img>` tag and initialize a new SVG element with an auto-executing event handler.
 <div align="center">
   <img src="./screenshots/payload.png" alt="XSS Payload" width="85%">
-  <p><i><b>Figure 2:</b> Entering the breakout payload into the search bar.</i></p>
+  <p><i><b>Figure 2:</b> Entering the breakout payload.</i></p>
 </div>
-
-#### 3. Execution & Verification
-The browser processed the injected HTML. Since the SVG element's `onload` event is triggered automatically, the JavaScript executed and displayed the alert box.
-
 <div align="center">
   <img src="./screenshots/verification.png" alt="Verification" width="85%">
-  <p><i><b>Figure 3:</b> The browser executing the injected SVG script.</i></p>
+  <p><i><b>Figure 3:</b> Execution of the injected SVG script.</i></p>
 </div>
-
-#### 4. Final Confirmation
-The execution of the script satisfied the lab requirements, and the PortSwigger banner confirmed the successful exploit.
-
 <div align="center">
   <img src="./screenshots/confirmation.png" alt="Lab Solved" width="85%">
-  <p><i><b>Figure 4:</b> Final confirmation of the DOM XSS solution.</i></p>
+  <p><i><b>Figure 4:</b> Lab completion confirmation.</i></p>
 </div>
 
----
+#### 3.3 Business Impact
+DOM XSS executes entirely on the client side. Web Application Firewalls (WAFs) monitoring server traffic may not detect the attack. It leads to the same impact as Reflected XSS (session hijacking, unauthorized actions).
 
-### 🧠 Key Takeaway
-**DOM-based XSS** occurs entirely within the client-side code. The server may never even "see" the malicious payload if it's handled strictly via JavaScript. 
+#### 3.4 Remediation
+Avoid using dangerous sinks like `document.write()`. Use safer alternatives such as `textContent` or `innerText`, which treat input strictly as plain text.
 
-**Remediation:** Avoid using dangerous sinks like `document.write()`. Instead, use safer alternatives like `textContent` which treat input as plain text, or use modern web frameworks that automatically handle output encoding.
-
----
+#### 3.5 References
+* **CWE-79:** https://cwe.mitre.org/data/definitions/79.html
+* **OWASP DOM-based XSS Prevention Cheat Sheet:** https://cheatsheetseries.owasp.org/cheatsheets/DOM_based_XSS_Prevention_Cheat_Sheet.html
