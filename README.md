@@ -42,50 +42,50 @@ As of April 2026, I have successfully identified, exploited, and documented **50
 <details open>
 <summary><b>2. Cross-Site Scripting (XSS)</b></summary>
 
-- [x] [1_reflectedXssHtmlContext](./2_xss/1_reflectedXssHtmlContext)
-- [x] [2_storedXssHtmlContext](./2_xss/2_storedXssHtmlContext)
-- [x] [3_domXssDocumentWriteSink](./2_xss/3_domXssDocumentWriteSink)
-- [x] [4_domXssInnerHtmlSink](./2_xss/4_domXssInnerHtmlSink)
-- [x] [5_domXssJqueryAnchorHrefSink](./2_xss/5_domXssJqueryAnchorHrefSink)
-- [x] [6_domXssJquerySelectorSinkHashChange](./2_xss/6_domXssJquerySelectorSinkHashChange)
-- [x] [7_reflectedXssAttributeEncoded](./2_xss/7_reflectedXssAttributeEncoded)
-- [x] [8_storedXssAnchorHrefJavascript](./2_xss/8_storedXssAnchorHrefJavascript)
-- [x] [9_reflectedXssJavascriptStringBreakout](./2_xss/9_reflectedXssJavascriptStringBreakout)
+- [x] [1_reflectedXssHtmlContext](./2_crossSiteScripting/1_reflectedXssHtmlContext)
+- [x] [2_storedXssHtmlContext](./2_crossSiteScripting/2_storedXssHtmlContext)
+- [x] [3_domXssDocumentWriteSink](./2_crossSiteScripting/3_domXssDocumentWriteSink)
+- [x] [4_domXssInnerHtmlSink](./2_crossSiteScripting/4_domXssInnerHtmlSink)
+- [x] [5_domXssJqueryAnchorHrefSink](./2_crossSiteScripting/5_domXssJqueryAnchorHrefSink)
+- [x] [6_domXssJquerySelectorSinkHashChange](./2_crossSiteScripting/6_domXssJquerySelectorSinkHashChange)
+- [x] [7_reflectedXssAttributeEncoded](./2_crossSiteScripting/7_reflectedXssAttributeEncoded)
+- [x] [8_storedXssAnchorHrefJavascript](./2_crossSiteScripting/8_storedXssAnchorHrefJavascript)
+- [x] [9_reflectedXssJavascriptStringBreakout](./2_crossSiteScripting/9_reflectedXssJavascriptStringBreakout)
 </details>
 
 <details open>
 <summary><b>3. Cross-Site Request Forgery (CSRF)</b></summary>
 
-- [x] [CSRF vulnerability with no defenses](./3_csrf/1_csrfWithNoDefenses)
+- [x] [CSRF vulnerability with no defenses](./3_crossSiteRequestForgery/1_csrfNoDefenses)
 </details>
 
 <details open>
 <summary><b>4. Clickjacking</b></summary>
 
-- [x] [Basic clickjacking with CSRF token protection](./4_clickjacking/1_basicClickjackingCsrfToken)
-- [x] [Clickjacking with form input data prefilled from a URL parameter](./4_clickjacking/2_clickjackingPrefilledUrl)
-- [x] [Clickjacking with a frame buster script](./4_clickjacking/3_clickjackingFrameBuster)
+- [x] [Basic clickjacking with CSRF token protection](./4_clickjacking/1_basicClickjacking)
+- [x] [Clickjacking with form input data prefilled from a URL parameter](./4_clickjacking/2_prefilledFormData)
+- [x] [Clickjacking with a frame buster script](./4_clickjacking/3_frameBuster)
 </details>
 
 <details open>
 <summary><b>5. Cross-origin resource sharing (CORS)</b></summary>
 
-- [x] [CORS vulnerability with basic origin reflection](./5_cors/1_basicOriginReflection)
-- [x] [CORS vulnerability with trusted null origin](./5_cors/2_trustedNullOrigin)
+- [x] [CORS vulnerability with basic origin reflection](./5_crossOriginResourceSharing/1_corsBasicOriginReflection)
+- [x] [CORS vulnerability with trusted null origin](./5_crossOriginResourceSharing/2_corsTrustedNullOrigin)
 </details>
 
 <details open>
 <summary><b>6. XML external entity (XXE) injection</b></summary>
 
-- [x] [Exploiting XXE using external entities to retrieve files](./6_xxe/1_xxeRetrieveFiles)
-- [x] [Exploiting XXE to perform SSRF attacks](./6_xxe/2_xxeSsrf)
+- [x] [Exploiting XXE using external entities to retrieve files](./6_xmlExternalEntityInjection/1_xxeRetrieveFiles)
+- [x] [Exploiting XXE to perform SSRF attacks](./6_xmlExternalEntityInjection/2_xxeToSsrf)
 </details>
 
 <details open>
 <summary><b>7. Server-side request forgery (SSRF)</b></summary>
 
-- [x] [Basic SSRF against the local server](./7_ssrf/1_ssrfLocalServer)
-- [x] [Basic SSRF against another back-end system](./7_ssrf/2_ssrfBackEnd)
+- [x] [Basic SSRF against the local server](./7_serverSideRequestForgery/1_ssrfLocalServer)
+- [x] [Basic SSRF against another back-end system](./7_serverSideRequestForgery/2_ssrfBackendSystem)
 </details>
 
 <details open>
@@ -104,22 +104,22 @@ As of April 2026, I have successfully identified, exploited, and documented **50
 <summary><b>10. Access control vulnerabilities</b></summary>
 
 - [x] [Unprotected admin functionality](./10_accessControl/1_unprotectedAdmin)
-- [x] [Unprotected admin functionality with unpredictable URL](./10_accessControl/2_unprotectedAdminUnpredictableUrl)
-- [x] [User role controlled by request parameter](./10_accessControl/3_userRoleParameter)
-- [x] [User role can be modified in user profile](./10_accessControl/4_userRoleProfile)
-- [x] [User ID controlled by request parameter](./10_accessControl/5_userIdParameter)
-- [x] [User ID controlled by request parameter, with unpredictable user IDs](./10_accessControl/6_userIdUnpredictable)
-- [x] [User ID controlled by request parameter with data leakage in redirect](./10_accessControl/7_userIdDataLeakage)
+- [x] [Unprotected admin functionality with unpredictable URL](./10_accessControl/2_unpredictableAdmin)
+- [x] [User role controlled by request parameter](./10_accessControl/3_cookieRoleControl)
+- [x] [User role can be modified in user profile](./10_accessControl/4_requestParameterRoleControl)
+- [x] [User ID controlled by request parameter](./10_accessControl/5_userIdRequestParameter)
+- [x] [User ID controlled by request parameter, with unpredictable user IDs](./10_accessControl/6_unpredictableUserId)
+- [x] [User ID controlled by request parameter with data leakage in redirect](./10_accessControl/7_dataLeakageRedirect)
 - [x] [User ID controlled by request parameter with password disclosure](./10_accessControl/8_userIdPasswordDisclosure)
-- [x] [Insecure direct object references](./10_accessControl/9_idor)
+- [x] [Insecure direct object references](./10_accessControl/9_insecureDirectObjectReferences)
 </details>
 
 <details open>
 <summary><b>11. Authentication</b></summary>
 
 - [x] [Username enumeration via different responses](./11_authentication/1_usernameEnumeration)
-- [x] [2FA simple bypass](./11_authentication/2_2faSimpleBypass)
-- [x] [Password reset broken logic](./11_authentication/3_passwordResetBrokenLogic)
+- [x] [2FA simple bypass](./11_authentication/2_2FA_bypass)
+- [x] [Password reset broken logic](./11_authentication/3_passwordResetLogic)
 </details>
 
 <details open>
@@ -128,19 +128,19 @@ As of April 2026, I have successfully identified, exploited, and documented **50
 - [x] [Manipulating WebSocket messages to exploit vulnerabilities](./12_webSockets/1_manipulatingMessages)
 </details>
 
-<details>
+<details open>
 <summary><b>13. Insecure deserialization</b></summary>
 
-- [ ] [Modifying serialized objects](./13_insecureDeserialization/1_modifyingSerializedObjects)
+- [x] [Modifying serialized objects](./13_insecureDeserialization/1_modifyingSerializedObjects)
 </details>
 
-<details>
+<details open>
 <summary><b>14. Information disclosure</b></summary>
 
-- [ ] [Information disclosure in error messages](./14_informationDisclosure/1_errorMessages)
-- [ ] [Information disclosure on debug page](./14_informationDisclosure/2_debugPage)
-- [ ] [Source code disclosure via backup files](./14_informationDisclosure/3_backupFiles)
-- [ ] [Authentication bypass via information disclosure](./14_informationDisclosure/4_authBypass)
+- [x] [Information disclosure in error messages](./14_informationDisclosure/1_errorMessages)
+- [x] [Information disclosure on debug page](./14_informationDisclosure/2_debugPage)
+- [x] [Source code disclosure via backup files](./14_informationDisclosure/3_backupFiles)
+- [x] [Authentication bypass via information disclosure](./14_informationDisclosure/4_authBypass)
 </details>
 
 <details open>
