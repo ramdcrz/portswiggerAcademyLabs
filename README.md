@@ -20,13 +20,13 @@ The goal is to master web application security fundamentals, focusing on vulnera
 
 ## 📈 Progress Report
 ### Executive Summary
-As of March 2026, I have successfully identified, exploited, and documented **36 vulnerabilities** across 12 distinct security categories. This repository has transitioned from basic walkthroughs to professional-grade vulnerability reports, detailing exploit strategies, proof-of-concept execution, business impact, and remediation advice mapping to OWASP and MITRE CWE standards.
+As of April 2026, I have successfully identified, exploited, and documented **50+ vulnerabilities** across **25 distinct security categories**. This repository has transitioned from basic walkthroughs to professional-grade vulnerability reports, detailing exploit strategies, proof-of-concept execution, business impact, and remediation advice mapping to OWASP and MITRE CWE standards.
 
 ### 🧠 Core Skills Acquired
 * **Manual Exploitation:** Utilizing Burp Suite (Proxy, Repeater, Intruder) to manipulate raw HTTP requests, intercept WebSockets, and observe server-side logic flaws.
 * **Access Control & IDOR:** Bypassing horizontal and vertical access boundaries, executing mass assignments, and uncovering Execution After Redirect (EAR) flaws.
-* **Advanced Injection & SSRF:** Pivoting through XML parsers (XXE) and exploiting internal networks via Server-Side Request Forgery and OS Command Injection.
-* **UI Redressing:** Bypassing CSRF tokens and client-side frame busters using HTML5 sandboxing and Clickjacking overlays.
+* **Advanced Injection & SSRF:** Pivoting through XML parsers (XXE), exploiting internal networks via Server-Side Request Forgery, and injecting NoSQL operators.
+* **Modern API & Logic Flaws:** Exploiting JWT misconfigurations, Race Conditions (TOCTOU), GraphQL Introspection, LLM Excessive Agency, and Web Cache Deception.
 
 ---
 
@@ -35,112 +35,163 @@ As of March 2026, I have successfully identified, exploited, and documented **36
 <details open>
 <summary><b>1. SQL Injection (SQLi)</b></summary>
 
-- [x] 1_retrievingHiddenData
-- [x] 2_loginBypass
+- [x] [1_retrievingHiddenData](./1_sqlInjection/1_retrievingHiddenData)
+- [x] [2_loginBypass](./1_sqlInjection/2_loginBypass)
 </details>
 
 <details open>
 <summary><b>2. Cross-Site Scripting (XSS)</b></summary>
 
-- [x] 1_reflectedXssHtmlContext
-- [x] 2_storedXssHtmlContext
-- [x] 3_domXssDocumentWriteSink
-- [x] 4_domXssInnerHtmlSink
-- [x] 5_domXssJqueryAnchorHrefSink
-- [x] 6_domXssJquerySelectorSinkHashChange
-- [x] 7_reflectedXssAttributeEncoded
-- [x] 8_storedXssAnchorHrefJavascript
-- [x] 9_reflectedXssJavascriptStringBreakout
+- [x] [1_reflectedXssHtmlContext](./2_xss/1_reflectedXssHtmlContext)
+- [x] [2_storedXssHtmlContext](./2_xss/2_storedXssHtmlContext)
+- [x] [3_domXssDocumentWriteSink](./2_xss/3_domXssDocumentWriteSink)
+- [x] [4_domXssInnerHtmlSink](./2_xss/4_domXssInnerHtmlSink)
+- [x] [5_domXssJqueryAnchorHrefSink](./2_xss/5_domXssJqueryAnchorHrefSink)
+- [x] [6_domXssJquerySelectorSinkHashChange](./2_xss/6_domXssJquerySelectorSinkHashChange)
+- [x] [7_reflectedXssAttributeEncoded](./2_xss/7_reflectedXssAttributeEncoded)
+- [x] [8_storedXssAnchorHrefJavascript](./2_xss/8_storedXssAnchorHrefJavascript)
+- [x] [9_reflectedXssJavascriptStringBreakout](./2_xss/9_reflectedXssJavascriptStringBreakout)
 </details>
 
 <details open>
 <summary><b>3. Cross-Site Request Forgery (CSRF)</b></summary>
 
-- [x] CSRF vulnerability with no defenses
+- [x] [CSRF vulnerability with no defenses](./3_csrf/1_csrfWithNoDefenses)
 </details>
 
 <details open>
 <summary><b>4. Clickjacking</b></summary>
 
-- [x] Basic clickjacking with CSRF token protection
-- [x] Clickjacking with form input data prefilled from a URL parameter
-- [x] Clickjacking with a frame buster script
+- [x] [Basic clickjacking with CSRF token protection](./4_clickjacking/1_basicClickjackingCsrfToken)
+- [x] [Clickjacking with form input data prefilled from a URL parameter](./4_clickjacking/2_clickjackingPrefilledUrl)
+- [x] [Clickjacking with a frame buster script](./4_clickjacking/3_clickjackingFrameBuster)
 </details>
 
 <details open>
 <summary><b>5. Cross-origin resource sharing (CORS)</b></summary>
 
-- [x] CORS vulnerability with basic origin reflection
-- [x] CORS vulnerability with trusted null origin
+- [x] [CORS vulnerability with basic origin reflection](./5_cors/1_basicOriginReflection)
+- [x] [CORS vulnerability with trusted null origin](./5_cors/2_trustedNullOrigin)
 </details>
 
 <details open>
 <summary><b>6. XML external entity (XXE) injection</b></summary>
 
-- [x] Exploiting XXE using external entities to retrieve files
-- [x] Exploiting XXE to perform SSRF attacks
+- [x] [Exploiting XXE using external entities to retrieve files](./6_xxe/1_xxeRetrieveFiles)
+- [x] [Exploiting XXE to perform SSRF attacks](./6_xxe/2_xxeSsrf)
 </details>
 
 <details open>
 <summary><b>7. Server-side request forgery (SSRF)</b></summary>
 
-- [x] Basic SSRF against the local server
-- [x] Basic SSRF against another back-end system
+- [x] [Basic SSRF against the local server](./7_ssrf/1_ssrfLocalServer)
+- [x] [Basic SSRF against another back-end system](./7_ssrf/2_ssrfBackEnd)
 </details>
 
 <details open>
 <summary><b>8. OS command injection</b></summary>
 
-- [x] OS command injection, simple case
+- [x] [OS command injection, simple case](./8_osCommandInjection/1_simpleCase)
 </details>
 
 <details open>
 <summary><b>9. Path traversal</b></summary>
 
-- [x] File path traversal, simple case
+- [x] [File path traversal, simple case](./9_pathTraversal/1_simpleCase)
 </details>
 
 <details open>
 <summary><b>10. Access control vulnerabilities</b></summary>
 
-- [x] Unprotected admin functionality
-- [x] Unprotected admin functionality with unpredictable URL
-- [x] User role controlled by request parameter
-- [x] User role can be modified in user profile
-- [x] User ID controlled by request parameter 
-- [x] User ID controlled by request parameter, with unpredictable user IDs
-- [x] User ID controlled by request parameter with data leakage in redirect 
-- [x] User ID controlled by request parameter with password disclosure
-- [x] Insecure direct object references
+- [x] [Unprotected admin functionality](./10_accessControl/1_unprotectedAdmin)
+- [x] [Unprotected admin functionality with unpredictable URL](./10_accessControl/2_unprotectedAdminUnpredictableUrl)
+- [x] [User role controlled by request parameter](./10_accessControl/3_userRoleParameter)
+- [x] [User role can be modified in user profile](./10_accessControl/4_userRoleProfile)
+- [x] [User ID controlled by request parameter](./10_accessControl/5_userIdParameter)
+- [x] [User ID controlled by request parameter, with unpredictable user IDs](./10_accessControl/6_userIdUnpredictable)
+- [x] [User ID controlled by request parameter with data leakage in redirect](./10_accessControl/7_userIdDataLeakage)
+- [x] [User ID controlled by request parameter with password disclosure](./10_accessControl/8_userIdPasswordDisclosure)
+- [x] [Insecure direct object references](./10_accessControl/9_idor)
 </details>
 
 <details open>
 <summary><b>11. Authentication</b></summary>
 
-- [x] Username enumeration via different responses
-- [x] 2FA simple bypass
-- [x] Password reset broken logic
+- [x] [Username enumeration via different responses](./11_authentication/1_usernameEnumeration)
+- [x] [2FA simple bypass](./11_authentication/2_2faSimpleBypass)
+- [x] [Password reset broken logic](./11_authentication/3_passwordResetBrokenLogic)
 </details>
 
 <details open>
 <summary><b>12. WebSockets</b></summary>
 
-- [x] Manipulating WebSocket messages to exploit vulnerabilities
+- [x] [Manipulating WebSocket messages to exploit vulnerabilities](./12_webSockets/1_manipulatingMessages)
 </details>
 
 <details>
 <summary><b>13. Insecure deserialization</b></summary>
 
-- [ ] Modifying serialized objects
+- [ ] [Modifying serialized objects](./13_insecureDeserialization/1_modifyingSerializedObjects)
 </details>
 
 <details>
 <summary><b>14. Information disclosure</b></summary>
 
-- [ ] Information disclosure in error messages
-- [ ] Information disclosure on debug page
-- [ ] Source code disclosure via backup files
-- [ ] Authentication bypass via information disclosure
+- [ ] [Information disclosure in error messages](./14_informationDisclosure/1_errorMessages)
+- [ ] [Information disclosure on debug page](./14_informationDisclosure/2_debugPage)
+- [ ] [Source code disclosure via backup files](./14_informationDisclosure/3_backupFiles)
+- [ ] [Authentication bypass via information disclosure](./14_informationDisclosure/4_authBypass)
+</details>
+
+<details open>
+<summary><b>18. File Upload Vulnerabilities</b></summary>
+
+- [x] [Unrestricted image upload with no extension blacklisting](./18_fileUpload/1_webShellUpload)
+- [x] [Web shell upload via Content-Type restriction bypass](./18_fileUpload/2_contentTypeBypass)
+</details>
+
+<details open>
+<summary><b>19. JWT Attacks</b></summary>
+
+- [x] [JWT authentication bypass via unverified signature](./19_jwt/1_unverifiedSignature)
+- [x] [JWT authentication bypass via flawed signature verification](./19_jwt/2_flawedSignatureVerification)
+</details>
+
+<details open>
+<summary><b>20. GraphQL API Vulnerabilities</b></summary>
+
+- [x] [Accessing private GraphQL posts](./20_graphql/1_accessingPrivatePosts)
+</details>
+
+<details open>
+<summary><b>21. Race Conditions</b></summary>
+
+- [x] [Limit overrun race conditions](./21_raceConditions/1_limitOverrun)
+</details>
+
+<details open>
+<summary><b>22. NoSQL Injection</b></summary>
+
+- [x] [Detecting NoSQL injection](./22_noSqlInjection/1_detectingNoSqlInjection)
+- [x] [Exploiting NoSQL operator injection to bypass authentication](./22_noSqlInjection/2_operatorAuthBypass)
+</details>
+
+<details open>
+<summary><b>23. API Testing</b></summary>
+
+- [x] [Exploiting an API endpoint using documentation](./23_apiTesting/1_exploitingApiDocumentation)
+</details>
+
+<details open>
+<summary><b>24. Web LLM Attacks</b></summary>
+
+- [x] [Exploiting LLM APIs with excessive agency](./24_llmAttacks/1_excessiveAgency)
+</details>
+
+<details open>
+<summary><b>25. Web Cache Deception</b></summary>
+
+- [x] [Exploiting path mapping for web cache deception](./25_webCacheDeception/1_pathMappingWcd)
 </details>
 
 ---
